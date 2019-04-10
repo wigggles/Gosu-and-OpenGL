@@ -119,14 +119,19 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
   #D: Below POV is established and used to create the rendering of objects threw OpenGL.
   #---------------------------------------------------------------------------------------------------------
   def gl_view
+    #---------------------------------------------------------
     glEnable(GL_TEXTURE_2D) # enables two-dimensional texturing to perform
+    #---------------------------------------------------------
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glmatrixmode
     glMatrixMode(GL_PROJECTION)
-    glLoadIdentity 
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glloadidentity
+    glLoadIdentity  # * HAS TOO * be loaded in order after glMatrixMode setting...
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/gluperspective
     gluPerspective(@fov, @ratio, @near, @far)
     #---------------------------------------------------------
-    glMatrixMode(GL_MODELVIEW) # The modelview matrix is where camera object information is stored.
-    glLoadIdentity # * HAS TOO * be loaded in order after glMatrixMode setting...
     # Camera placement and viewing arangements:
+    # The modelview matrix is where camera object information is stored.
+    glMatrixMode(GL_MODELVIEW); glLoadIdentity
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glulookat
     gluLookAt(@x,@y,@z,    # Camera Location
               @tx,@ty,@tz, # Viewing Target Location
@@ -136,6 +141,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     #---------------------------------------------------------
     @angle += 1 if DEBUG_SPIN
     # rotate all 3D drawing after this call on viewing axis angle.
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
     glRotatef(@angle, @vert_orintation[0], @vert_orintation[1], @vert_orintation[2])
   end
   #---------------------------------------------------------------------------------------------------------

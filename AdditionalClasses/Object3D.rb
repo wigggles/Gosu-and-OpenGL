@@ -47,7 +47,11 @@ class Object3D < Basic3D_Object
       glPushMatrix
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
       glScalef(@texture.width, @texture.height, 1)
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
       glBegin(GL_QUADS)
+        # Avaliable functions while inside block:
+        # [ glVertex, glColor, glIndex, glNormal, glTexCoord, glEvalCoord, 
+        #   glEvalPoint, glMaterial, glEdgeFlag ]
         glTexCoord2d(@tex_info.left, @tex_info.top)
         glVertex3f(-0.5, 0.5, 0.0)
         glTexCoord2d(@tex_info.left, @tex_info.bottom)
@@ -57,8 +61,10 @@ class Object3D < Basic3D_Object
         glTexCoord2d(@tex_info.right, @tex_info.top)
         glVertex3f(0.5, 0.5, 0.0)
       glEnd
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpopmatrix
     glPopMatrix
-    # more openGL drawing
+    #--------------------------------------
+    # more openGL drawing, but threw function calls instead.
     wire_frame_cube
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------

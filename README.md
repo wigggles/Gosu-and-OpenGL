@@ -1,7 +1,7 @@
 # Gosu-and-OpenGL
 
 
-This was written as a sample of using Gosu for developing 3D software useing the OpenGL library.
+This was written as a sample for using the Gosu library to develop 3D software useing the OpenGL library in Ruby.
 
 
 ### Requirements
