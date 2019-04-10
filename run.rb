@@ -85,7 +85,7 @@ module Konfigure
     # common controls
     :move_left    => [:left , :let_a, :gp_left],
     :move_right   => [:right, :let_d, :gp_right],
-    :move_crouch  => [:lcrtl],
+    :move_crouch  => [:lctrl],
     :move_jump    => [:space],
     #--------------------------------------
     # Standards

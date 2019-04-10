@@ -52,25 +52,28 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     @tz = @z - Math::sin(@angle * Math::PI / 180.0) 
   end
   #---------------------------------------------------------------------------------------------------------
+  #D: Refer to image: ' Media/Screen_Shots/origin_explained.png '
+  #---------------------------------------------------------------------------------------------------------
   def input_update_movement_controls
     #--------------------------------------
     # Left Right X axis, Camera Position
     if    $program.holding?(:move_left)
-      @x -= @speed
+      @z -= @speed
     elsif $program.holding?(:move_right)
-      @x += @speed
+      @z += @speed
     #--------------------------------------
     # Up Down Y axis, Camera Position
     elsif $program.holding?(:move_up)
-      @y -= @speed
+      @x -= @speed
     elsif $program.holding?(:move_down)
-      @y += @speed
+      @x += @speed
     #--------------------------------------
     # Vertical Hight change, Camera Position
-    elsif $program.holding?(:jump)
-      @z -= @speed
-    elsif $program.holding?(:crouch)
-      @z += @speed
+    # more of a 'turn' then a straif type movment...
+    elsif $program.holding?(:move_jump)
+      @y -= @speed
+    elsif $program.holding?(:move_crouch)
+      @y += @speed
     #--------------------------------------
     end
   end
@@ -87,7 +90,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     unless DEBUG_PRINT_WAIT.nil?
       if @time_between_debug_prints <= 0
         @time_between_debug_prints = DEBUG_PRINT_WAIT
-        puts(get_debug_string)
+        #puts(get_debug_string)
       else
         @time_between_debug_prints -= 1
       end
