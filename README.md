@@ -29,4 +29,4 @@ ensure that you only have one OpenGl gem installed by using command 'gem search 
 
 ### Screen Shot
 
-![alt text](https://raw.githubusercontent.com/wigggles/Gosu-and-OpenGL/master/Media/Screen_Shots/Screen_Shot.png "")
+![alt text](https://raw.githubusercontent.com/wigggles/Pixel-Collisions/master/Media/ScreenShots/ScreenShot.png "")
