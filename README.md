@@ -20,6 +20,11 @@ In a Terminal or system Console 'cd' into the project directory and use 'ruby ru
 
 This is a work in progress but provides some basic layout samples for a 3D rendering system with Camera and Object support.
 
+If you have issues with `undefined method 'load_lib' for Gl:Module`
+ensure that you only have one openGl gem installed by using command 'gem search opengl --local'
+>opengl-bindings
+and nothing else is returned.
+
 ### Screen Shot
 
 ![alt text](https://raw.githubusercontent.com/wigggles/Gosu-and-OpenGL/master/Media/Screen_Shots/Screen_Shot.png "")
