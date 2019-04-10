@@ -119,7 +119,7 @@ class Program < Gosu::Window
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # clear the screen and the depth buffer
       #---------------------------------------------------------
       # Camera object class internally manages viewing math.
-      @camera_vantage.gl_view 
+      @camera_vantage.gl_view # you * ALWAYS * view before you draw.
       # draw the rest of the 3D objects:
       open_glDraw
     end
