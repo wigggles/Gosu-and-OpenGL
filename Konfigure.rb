@@ -3,9 +3,16 @@
 #=====================================================================================================================================================
 module Konfigure
   #---------------------------------------------------------------------------------------------------------
+  CAMERASTART = [600, 60, 0] #  X, Y, Z location of camera in 3D world on object initialize.
+  # You can configure the camera inside of file: ' AdditionalClasses/Camera_3D.rb ' check for comments on
+  # further details there in file.
+  #---------------------------------------------------------------------------------------------------------
+  RESOLUTION   = [800, 600] # Display Gosu::Window size.
+  ISFULLSCREEN = false      # Draw in full screen mode?
+  #---------------------------------------------------------------------------------------------------------
   UP_MS_DRAW  = 15    # 60 FPS = 16.6666 : 50 FPS = 20.0 : 40 FPS = 25.222
   #---------------------------------------------------------------------------------------------------------
-  PRINT_INPUT_KEY = false # extra debug info on the input scheme manager.
+  PRINT_INPUT_KEY = false # Extra debug info on the input scheme manager.
   #---------------------------------------------------------------------------------------------------------
   # Defualt control scheme settings.
   DEFAULT_CONTROLS = { 

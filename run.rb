@@ -61,12 +61,12 @@ class Program < Gosu::Window
   include QuickControls # takes care of all the button mapping and junk...
   #---------------------------------------------------------------------------------------------------------
   def initialize
-    super(800, 600, {:update_interval => UP_MS_DRAW, :fullscreen => false})
+    super(RESOLUTION[0], RESOLUTION[1], {:update_interval => UP_MS_DRAW, :fullscreen => ISFULLSCREEN})
     $program = self # global pointer to window creation object
     controls_init   # prep the input controls scheme manager
     
     # create the 3D camera viewpoint manager
-    @camera_vantage = Camera3D_Object.new({:x => 600, :y => 60, :z => 0})
+    @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
     # create some new openGL_objects on the screen
     @openGL_object = Object3D.new()
   end

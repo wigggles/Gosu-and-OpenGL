@@ -17,13 +17,14 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     # which way is up?
     @vert_orintation = [0, 1, 0] # [X axis, Y axis, Z axis]
     #---------------------------------------------------------
+    # Defualt camera display settings:
     @fov    = 45   # How wide can you view?
     @near   = 1    # How close can you see?
     @far    = 1000 # How far can you see?
     @angle  = 0    # Which angle of rotation on @vert_orintation is the camera looking?
     @speed  = 3.0  # Speed to move at.
     @axial  = 1.0  # Speed to turn at.
-    set_ratio # aspec ratio of view. ' screen size '
+    set_ratio # aspec ratio of view. ' screen size ' uses Gosu::Window object.
     #---------------------------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Font
     @hud_font = Gosu::Font.new(22)
