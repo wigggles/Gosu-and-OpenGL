@@ -111,7 +111,7 @@ class Program < Gosu::Window
   include Konfigure
   include QuickControls # takes care of all the button mapping and junk...
   #---------------------------------------------------------------------------------------------------------
-	def initialize
+  def initialize
     super(800, 600, {:update_interval => UP_MS_DRAW, :fullscreen => false})
     $program = self # global pointer to window creation object
     controls_init   # prep the input controls scheme manager
@@ -151,14 +151,14 @@ class Program < Gosu::Window
     end
   end
   #---------------------------------------------------------------------------------------------------------
-	def update
+  def update
     super # empty caller
     input_update # updates the backend control scheme manager
     update_input_controls
     @camera_vantage.update # update the camera
     # update world 3d objects:
     @openGL_object.update
-	end
+  end
   #---------------------------------------------------------------------------------------------------------
   def draw
     # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
