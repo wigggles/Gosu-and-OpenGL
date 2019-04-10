@@ -1,0 +1,16 @@
+
+
+Created by Wiggles (236666024651390978)
+
+
+
+With much help from:
+  
+*    bestguigui (415559768233476106)
+  For their amazing knowledge of OpenGL and willingness to share that knowledge
+  to help put this sample together. With out the information that was provided
+  on integrating into Gosu::Window this smaple could not have been created.
+  
+*    Maskendoktor (414891775795265538)
+  For Gosu, Join the discord:   https://discord.gg/5nEBXDc
+  https://www.rubydoc.info/github/gosu/gosu/master/
