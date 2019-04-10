@@ -131,7 +131,8 @@ class Program < Gosu::Window
     @openGL_object.draw
   end
   #---------------------------------------------------------------------------------------------------------
-  #D: Draw all the screen obects onto fresh screen.
+  #D: Draw all the screen obects onto fresh screen, this can only be called from within a ' gl do ' block
+  #D: or it will break. 
   #---------------------------------------------------------------------------------------------------------
   def open_glDraw
     @openGL_object.gl_draw
