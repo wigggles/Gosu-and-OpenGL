@@ -7,6 +7,7 @@ This was written as a sample of using Gosu for developing 3D software useing the
 ### Requirements
 This OpenGL ruby gem.
 https://rubygems.org/gems/opengl-bindings
+Docs: http://docs.gl/
 
 And Gosu and a compatible Ruby version.
 https://rubygems.org/gems/gosu
