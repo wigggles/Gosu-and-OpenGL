@@ -15,3 +15,7 @@ https://rubygems.org/gems/gosu
 ### Notes
 
 This is a work in progress but provides some basic layout samples for a 3D rendering system with Camera and Object support.
+
+### Screen Shot
+
+![alt text](https://raw.githubusercontent.com/wigggles/Gosu-and-OpenGL/master/Media/Screen_Shots/Screen_Shot.png "")
