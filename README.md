@@ -9,8 +9,10 @@ This OpenGL ruby gem.
 https://rubygems.org/gems/opengl-bindings
 Docs: http://docs.gl/
 
-And Gosu and a compatible Ruby version.
+And Gosu with a compatible Ruby version.
 https://rubygems.org/gems/gosu
+
+https://www.ruby-lang.org/en/documentation/installation/
 
 ### To Run
 
