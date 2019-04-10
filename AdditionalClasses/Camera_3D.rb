@@ -127,6 +127,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     glMatrixMode(GL_MODELVIEW) # The modelview matrix is where camera object information is stored.
     glLoadIdentity # * HAS TOO * be loaded in order after glMatrixMode setting...
     # Camera placement and viewing arangements:
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glulookat
     gluLookAt(@x,@y,@z,    # Camera Location
               @tx,@ty,@tz, # Viewing Target Location
       # Vector Direction of Movement.

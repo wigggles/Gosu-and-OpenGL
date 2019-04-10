@@ -42,8 +42,10 @@ class Object3D < Basic3D_Object
     # in OpenGL, you only draw at [0, 0, 0], no matter what...
     # you stretch and pull the viewing texture (x,y,z) values to construct the world in 3D.
     # this requires math.. lol at a later time might work on version for help with that.
+    # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
     glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
       glPushMatrix
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
       glScalef(@texture.width, @texture.height, 1)
       glBegin(GL_QUADS)
         glTexCoord2d(@tex_info.left, @tex_info.top)
@@ -56,43 +58,19 @@ class Object3D < Basic3D_Object
         glVertex3f(0.5, 0.5, 0.0)
       glEnd
     glPopMatrix
+    # more openGL drawing
+    wire_frame_cube
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Empty wire frame object rendering sample.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def wire_frame_cube
-    # untextured cube example
+    glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
     glBegin(GL_QUADS)
-      # back face
-      glVertex3f(-0.5, 0.5, -0.5)
-      glVertex3f(-0.5, -0.5, -0.5)
-      glVertex3f(0.5, -0.5, -0.5)
-      glVertex3f(0.5, 0.5, -0.5)
-      # front face
-      glVertex3f(-0.5, 0.5, 0.5)
-      glVertex3f(-0.5, -0.5, 0.5)
-      glVertex3f(0.5, -0.5, 0.5)
-      glVertex3f(0.5, 0.5, 0.5)
-      # left face
-      glVertex3f(-0.5, 0.5, -0.5)
-      glVertex3f(-0.5, -0.5, -0.5)
-      glVertex3f(-0.5, -0.5, 0.5)
-      glVertex3f(-0.5, 0.5, 0.5)
-      # right face
-      glVertex3f(0.5, 0.5, -0.5)
-      glVertex3f(0.5, -0.5, -0.5)
-      glVertex3f(0.5, -0.5, 0.5)
-      glVertex3f(0.5, 0.5, 0.5)
-      # top face
-      glVertex3f(-0.5, 0.5, -0.5)
-      glVertex3f(-0.5, 0.5, 0.5)
-      glVertex3f(0.5, 0.5, 0.5)
-      glVertex3f(0.5, 0.5, -0.5)
-      # bottom face
-      glVertex3f(-0.5, -0.5, -0.5)
-      glVertex3f(-0.5, -0.5, 0.5)
-      glVertex3f(0.5, -0.5, 0.5)
-      glVertex3f(0.5, -0.5, -0.5)
+      glTexCoord2d(@tex_info.left, @tex_info.top); glVertex3f(-0.5, 0.5, 0.0)
+      glTexCoord2d(@tex_info.left, @tex_info.bottom); glVertex3f(-0.5, -0.5, 0.0)
+      glTexCoord2d(@tex_info.right, @tex_info.bottom); glVertex3f(0.5, -0.5, 0.0)
+      glTexCoord2d(@tex_info.right, @tex_info.top); glVertex3f(0.5, 0.5, 0.0)
     glEnd
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------

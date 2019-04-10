@@ -2,6 +2,7 @@
 #=====================================================================================================================================================
 # Additional tutorials and usefull information.
 #   https://github.com/vaiorabbit/ruby-opengl
+#   http://larskanis.github.io/opengl/tutorial.html
 #=====================================================================================================================================================
 puts "\n" * 3 # some top buffer for terminal notifications.
 puts "*" * 70
