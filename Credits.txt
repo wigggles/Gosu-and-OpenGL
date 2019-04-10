@@ -9,7 +9,8 @@ With much help from:
 *    bestguigui (415559768233476106)
   For their amazing knowledge of OpenGL and willingness to share that knowledge
   to help put this sample together. With out the information that was provided
-  on integrating into Gosu::Window this smaple could not have been created.
+  on integrating into Gosu::Window this smaple could not have been created. They
+  also provied some excellent images to convey the drawing of objects.
   
 *    Maskendoktor (414891775795265538)
   For Gosu, Join the discord:   https://discord.gg/5nEBXDc
