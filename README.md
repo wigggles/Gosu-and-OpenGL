@@ -11,6 +11,10 @@ https://rubygems.org/gems/opengl-bindings
 And Gosu and a compatible Ruby version.
 https://rubygems.org/gems/gosu
 
+### To Run
+
+In a Terminal or system Console 'cd' into the project directory and use 'ruby run.rb' to launch the Gosu::Window.
+
 
 ### Notes
 
