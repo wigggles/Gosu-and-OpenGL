@@ -39,6 +39,9 @@ class Object3D < Basic3D_Object
   #D: take place.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def gl_draw
+    # in OpenGL, you only draw at [0, 0, 0], no matter what...
+    # you stretch and pull the viewing texture (x,y,z) values to construct the world in 3D.
+    # this requires math.. lol at a later time might work on version for help with that.
     glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
       glPushMatrix
       glScalef(@texture.width, @texture.height, 1)
@@ -53,6 +56,44 @@ class Object3D < Basic3D_Object
         glVertex3f(0.5, 0.5, 0.0)
       glEnd
     glPopMatrix
+  end
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  #D: Empty wire frame object rendering sample.
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  def wire_frame_cube
+    # untextured cube example
+    glBegin(GL_QUADS)
+      # back face
+      glVertex3f(-0.5, 0.5, -0.5)
+      glVertex3f(-0.5, -0.5, -0.5)
+      glVertex3f(0.5, -0.5, -0.5)
+      glVertex3f(0.5, 0.5, -0.5)
+      # front face
+      glVertex3f(-0.5, 0.5, 0.5)
+      glVertex3f(-0.5, -0.5, 0.5)
+      glVertex3f(0.5, -0.5, 0.5)
+      glVertex3f(0.5, 0.5, 0.5)
+      # left face
+      glVertex3f(-0.5, 0.5, -0.5)
+      glVertex3f(-0.5, -0.5, -0.5)
+      glVertex3f(-0.5, -0.5, 0.5)
+      glVertex3f(-0.5, 0.5, 0.5)
+      # right face
+      glVertex3f(0.5, 0.5, -0.5)
+      glVertex3f(0.5, -0.5, -0.5)
+      glVertex3f(0.5, -0.5, 0.5)
+      glVertex3f(0.5, 0.5, 0.5)
+      # top face
+      glVertex3f(-0.5, 0.5, -0.5)
+      glVertex3f(-0.5, 0.5, 0.5)
+      glVertex3f(0.5, 0.5, 0.5)
+      glVertex3f(0.5, 0.5, -0.5)
+      # bottom face
+      glVertex3f(-0.5, -0.5, -0.5)
+      glVertex3f(-0.5, -0.5, 0.5)
+      glVertex3f(0.5, -0.5, 0.5)
+      glVertex3f(0.5, -0.5, -0.5)
+    glEnd
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called when its time to release the object to GC.

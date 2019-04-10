@@ -1,7 +1,7 @@
 
 #=====================================================================================================================================================
 class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super class.
-  attr_accessor :fov, :near, :far, :ratio, :tx, :ty, :tz, :vert_orintation
+  attr_accessor :fov, :near, :far, :ratio, :tx, :ty, :tz, :vert_orintation, :speed, :axial
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
   DEBUG_SPIN = true # spin the camera in place to assist with viewing tests.
   #---------------------------------------------------------------------------------------------------------
@@ -20,7 +20,9 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     @fov    = 45   # How wide can you view?
     @near   = 1    # How close can you see?
     @far    = 1000 # How far can you see?
-    @angle  = 0    # Which rotation on @vert_orintation is the camera looking?
+    @angle  = 0    # Which angle of rotation on @vert_orintation is the camera looking?
+    @speed  = 3.0  # Speed to move at.
+    @axial  = 1.0  # Speed to turn at.
     set_ratio # aspec ratio of view. ' screen size '
     #---------------------------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Font
@@ -30,25 +32,45 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     @time_between_debug_prints = 0
   end
   #---------------------------------------------------------------------------------------------------------
-  def update_controls
+  #D: How to spin in place and move relitive to direction facing.
+  #---------------------------------------------------------------------------------------------------------
+  def turning_move_style
+    # spin
+    @angle -= @axial if $program.holding?(:turn_left)
+    @angle += @axial if $program.holding?(:turn_right)
+    # momentum
+    if $program.holding?(:move_backward)
+      @x += @speed * Math::cos(@angle * Math::PI / 180.0)
+      @z += @speed * Math::sin(@angle * Math::PI / 180.0)
+    elsif $program.holding?(:move_forword)
+      @x -= @speed * Math::cos(@angle * Math::PI / 180.0)
+      @z -= @speed * Math::sin(@angle * Math::PI / 180.0)
+    end
+    # camera position updates
+    @tx = @x - Math::cos(@angle * Math::PI / 180.0)
+    @ty = @y 
+    @tz = @z - Math::sin(@angle * Math::PI / 180.0) 
+  end
+  #---------------------------------------------------------------------------------------------------------
+  def input_update_movement_controls
     #--------------------------------------
     # Left Right X axis, Camera Position
     if    $program.holding?(:move_left)
-      @x -= 1
+      @x -= @speed
     elsif $program.holding?(:move_right)
-      @x += 1
+      @x += @speed
     #--------------------------------------
     # Up Down Y axis, Camera Position
     elsif $program.holding?(:move_up)
-      @y -= 1
+      @y -= @speed
     elsif $program.holding?(:move_down)
-      @y += 1
+      @y += @speed
     #--------------------------------------
     # Vertical Hight change, Camera Position
     elsif $program.holding?(:jump)
-      @z -= 1
+      @z -= @speed
     elsif $program.holding?(:crouch)
-      @z += 1
+      @z += @speed
     #--------------------------------------
     end
   end
@@ -60,15 +82,25 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
   end
   #---------------------------------------------------------------------------------------------------------
   def update
-    update_controls
+    input_update_movement_controls
+    # debug information:
     unless DEBUG_PRINT_WAIT.nil?
       if @time_between_debug_prints <= 0
         @time_between_debug_prints = DEBUG_PRINT_WAIT
-        puts("3D Camera: [#{@x},#{@y},#{@z}] - [#{@tx},#{@ty},#{@tz}]\n\tFov: #{@fov} View: #{@near} -> #{@far}")
+        puts(get_debug_string)
       else
         @time_between_debug_prints -= 1
       end
     end
+  end
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  #D: String used to convey usefull information to an area where the user can see it.
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  def get_debug_string
+    s =  "3D Camera: [#{@x},#{@y},#{@z}] - [#{@tx},#{@ty},#{@tz}]\n\t"
+    s += "Fov: #{@fov} View: #{@near} -> #{@far}\n\t"
+    s += "Gosu::Window FPS (#{Gosu.fps})"
+    return s
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called from $program Gosu::Window inside the draw method que. This is called after the interjection of gl_draw function.
@@ -76,7 +108,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def draw
     unless DEBUG_PRINT_WAIT.nil?
-      @string = "3D Camera: [#{@x},#{@y},#{@z}] - [#{@tx},#{@ty},#{@tz}]\n\tFov: #{@fov} View: #{@near} -> #{@far}"
+      @string = get_debug_string
     end
     @hud_font.draw_text(@string, 16, 16, 100, 1, 1, 0xff_ffffff, :default)
   end

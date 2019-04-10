@@ -74,8 +74,15 @@ module Konfigure
     #--------------------------------------
     # Player controls
     #--------------------------------------
-    :move_up      => [:up   , :let_w, :gp_up],
-    :move_down    => [:down , :let_s, :gp_down],
+    # 2D controls
+    :move_up      => [:up  , :let_w, :gp_up],
+    :move_down    => [:down, :let_s, :gp_down],
+    # 3D controls
+    :turn_left      => [:let_a, :left],
+    :turn_right     => [:let_d, :right],
+    :move_forword   => [:let_w, :up],
+    :move_backwards => [:let_s, :down],
+    # common controls
     :move_left    => [:left , :let_a, :gp_left],
     :move_right   => [:right, :let_d, :gp_right],
     :move_crouch  => [:lcrtl],
@@ -87,6 +94,7 @@ module Konfigure
     :mouse_lclick     => [:l_clk],
     :mouse_rclick     => [:r_clk],
     :cancel_action    => [:esc, :gp_cl],
+    # debug button maps
     :debug_action_one => [:rctrl],
     :debug_action_two => [:return],
     #--------------------------------------
