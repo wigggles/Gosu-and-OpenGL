@@ -1,7 +1,7 @@
 # Gosu-and-OpenGL
 
 
-This was written as a sample of using Gosu for developing 3D software useing the OpenGl library.
+This was written as a sample of using Gosu for developing 3D software useing the OpenGL library.
 
 
 ### Requirements
