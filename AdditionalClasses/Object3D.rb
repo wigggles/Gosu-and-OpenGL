@@ -16,6 +16,7 @@ class Object3D < Basic3D_Object
     @obj_filename = options[:filename] || ""
     @texture_file = options[:texture]  || "" # eventually wil tie into the load module.
     @scale = 1.0 # scale to stretch the texture to.
+    @angle = 0.0
     #---------------------------------------------------------
     @object_name = ''       # Is there an object name provided from .obj file or one set to this Ruby Object?
     @texture_resource = nil # A string or array that contains the name of textures used when drawing the .obj
@@ -46,6 +47,7 @@ class Object3D < Basic3D_Object
   #D: Usually called from a loop to push variable changes and automate function triggers.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def update
+    @angle += 1
     # debug information:
     unless DEBUG_PRINT_WAIT.nil?
       if @time_between_debug_prints <= 0
@@ -75,9 +77,9 @@ class Object3D < Basic3D_Object
     glPushMatrix # for the most part operations should keep to themselfs with location configuration.
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
-      glTranslatef(0, 0, 0) # Moving function from the current gluPerspective by x,y,z change
+      glTranslatef(@x, @y, @z) # Moving function from the current gluPerspective by x,y,z change
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
-      glRotatef(0.0, 0.0, 1.0, 0.0) # Rotation function.
+      glRotatef(0.0, @angle, 0.0, 0.0) # Rotation function.
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
       glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
