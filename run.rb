@@ -68,7 +68,7 @@ class Program < Gosu::Window
     # create the 3D camera viewpoint manager
     @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
     # create some new openGL_objects on the screen
-    @openGL_object = Object3D.new()
+    @openGL_object = Object3D.new(:filename => "CardBoardBox")
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Called when a key is depressed. ID can be an integer or an array of integers that reference input symbols.
