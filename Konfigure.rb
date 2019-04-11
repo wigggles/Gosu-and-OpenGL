@@ -3,7 +3,7 @@
 #=====================================================================================================================================================
 module Konfigure
   #---------------------------------------------------------------------------------------------------------
-  CAMERASTART = [10, 10, 0] #  X, Y, Z location of camera in 3D world on object initialize.
+  CAMERASTART = [32, 10, 0] #  X, Y, Z location of camera in 3D world on object initialize.
   # You can configure the camera inside of file: ' AdditionalClasses/Camera_3D.rb ' check for comments on
   # further details there in file.
   #---------------------------------------------------------------------------------------------------------

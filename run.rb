@@ -69,7 +69,7 @@ class Program < Gosu::Window
     @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
     #---------------------------------------------------------
     # create some new openGL_objects on the screen
-    #@map_objects << Object2D.new(:texture => "cardboard") # 2D object, a texture basically...
+    @map_objects << Object2D.new(:texture => "cardboard", :x => 10.0, :y => 10) # 2D object, a texture basically...
     @map_objects << Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
   end
   #---------------------------------------------------------------------------------------------------------

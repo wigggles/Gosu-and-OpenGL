@@ -3,7 +3,7 @@
 class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super class.
   attr_accessor :fov, :near, :far, :ratio, :tx, :ty, :tz, :vert_orintation, :speed, :axial
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
-  DEBUG_SPIN = false # spin the camera in place to assist with viewing tests.
+  DEBUG_SPIN = true # spin the camera in place to assist with viewing tests.
   #---------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     # set camera 3D world location
@@ -129,6 +129,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
   #---------------------------------------------------------------------------------------------------------
   def gl_view
     #---------------------------------------------------------
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glenable
     glEnable(GL_TEXTURE_2D) # enables two-dimensional texturing to perform
     #---------------------------------------------------------
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glmatrixmode
@@ -140,7 +141,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     #---------------------------------------------------------
     # Camera placement and viewing arangements:
     # The modelview matrix is where camera object information is stored.
-    glMatrixMode(GL_MODELVIEW)
+    glMatrixMode(GL_MODELVIEW); glLoadIdentity
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glulookat
     gluLookAt(@x,@y,@z,    # Camera Location          // eye
               @tx,@ty,@tz, # Viewing Target Location  // direction

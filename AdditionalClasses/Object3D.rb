@@ -68,19 +68,27 @@ class Object3D < Basic3D_Object
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called from $program Gosu::Window inside draw, this happens before any Gosu::Font or Gosu::Image actions
   #D: take place. 
+  #D: https://docs.microsoft.com/en-us/windows/desktop/opengl/glprioritizetextures
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def gl_draw
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
-    glTranslatef(0, 0, 0) # Moving function from the current gluPerspective by x,y,z change
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
-    glRotatef(0.0, 0.0, 1.0, 0.0) # Rotation function.
-    # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
-    glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
-    glScalef(@scale, @scale, @scale)
-    #---------------------------------------------------------
-    # call the cached draw recording for the model.
-    @object_model.render
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
+    glPushMatrix # for the most part operations should keep to themselfs with location configuration.
+      #---------------------------------------------------------
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
+      glTranslatef(0, 0, 0) # Moving function from the current gluPerspective by x,y,z change
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
+      glRotatef(0.0, 0.0, 1.0, 0.0) # Rotation function.
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
+      # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
+      glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
+      glScalef(@scale, @scale, @scale)
+      #---------------------------------------------------------
+      # call the cached draw recording for the model.
+      @object_model.render
+      #---------------------------------------------------------
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpopmatrix
+    glPopMatrix
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Debug tool to print out information about the object.
@@ -96,12 +104,13 @@ class Object3D < Basic3D_Object
   def load_obj_file
     use_wavefrontOBJ_loader
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
-    @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{@texture_file}.png"), retro: true) rescue nil
+    file_dir = File.join(ROOT, "Media/Textures/#{@texture_file}.png")
+    @texture = Gosu::Image.new(file_dir, retro: true) rescue nil
     if @texture.nil?
       puts("Texture image file was not found for: #{@texture_file}")
       exit
     end
-    puts("Using texture file: \"Media/Textures/#{@texture_file}.png\"")
+    puts("Using texture file:\n  \"#{file_dir}\"")
     #--------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
     @tex_info = @texture.gl_tex_info # helper structure that contains image data

@@ -5,7 +5,6 @@
 # Date: 0/0/0
 #=====================================================================================================================================================
 class Object2D < Basic3D_Object
-  DEBUG_SPIN = true # spin the view of objects perspective for viewing tests.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Creates Kernal class Object. (Klass)
   #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,26 +39,30 @@ class Object2D < Basic3D_Object
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called from $program Gosu::Window inside draw, this happens before any Gosu::Font or Gosu::Image actions
   #D: take place.
+  #D: https://docs.microsoft.com/en-us/windows/desktop/opengl/glprioritizetextures
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def gl_draw
-    #---------------------------------------------------------
-    @angle += 1 if DEBUG_SPIN
-    # rotate all 3D drawing after this call on viewing axis angle.
-    $program.camera3d_rotate_view(@angle)
-    # Moving function from the current point by current Camera gluPerspective x,y,z
-    glTranslatef(0, 0, 0)
-    # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
-    glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
-    glScalef(@scale, @scale, @scale)
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
-    glBegin(GL_QUADS)
-      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
-      glTexCoord2d(@tex_info.left, @tex_info.top); glVertex3f(-0.5, 0.5, 0.0)
-      glTexCoord2d(@tex_info.left, @tex_info.bottom); glVertex3f(-0.5, -0.5, 0.0)
-      glTexCoord2d(@tex_info.right, @tex_info.bottom); glVertex3f(0.5, -0.5, 0.0)
-      glTexCoord2d(@tex_info.right, @tex_info.top); glVertex3f(0.5, 0.5, 0.0)
-    glEnd
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
+    glPushMatrix # for the most part operations should keep to themselfs with location configuration.
+      #---------------------------------------------------------
+      # Moving function from the current point by current Camera gluPerspective x,y,z
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
+      glTranslatef(@x, @y, @z)
+      # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
+      glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
+      glScalef(@scale, @scale, @scale)
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
+      glBegin(GL_QUADS)
+        # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
+        glTexCoord2d(@tex_info.left, @tex_info.top); glVertex3f(-0.5, 0.5, 0.0)
+        glTexCoord2d(@tex_info.left, @tex_info.bottom); glVertex3f(-0.5, -0.5, 0.0)
+        glTexCoord2d(@tex_info.right, @tex_info.bottom); glVertex3f(0.5, -0.5, 0.0)
+        glTexCoord2d(@tex_info.right, @tex_info.top); glVertex3f(0.5, 0.5, 0.0)
+      glEnd
+      #---------------------------------------------------------
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpopmatrix
+    glPopMatrix
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called when its time to release the object to GC.
