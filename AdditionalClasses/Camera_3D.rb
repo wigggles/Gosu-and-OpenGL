@@ -3,27 +3,27 @@
 class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super class.
   attr_accessor :fov, :near, :far, :ratio, :tx, :ty, :tz, :vert_orintation, :speed, :axial
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
-  DEBUG_SPIN = true # spin the camera in place to assist with viewing tests.
+  DEBUG_SPIN = false # spin the camera in place to assist with viewing tests.
   #---------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     # set camera 3D world location
     super(options)
     #---------------------------------------------------------
     # target location in 3D world for the camera to look at.
-    @tx = options[:tx] || 0
-    @ty = options[:ty] || 0
-    @tz = options[:tz] || 0
+    @tx = options[:tx] || 0.0
+    @ty = options[:ty] || 0.0
+    @tz = options[:tz] || 0.0
     #---------------------------------------------------------
     # which way is up?
     @vert_orintation = [0, 1, 0] # [X axis, Y axis, Z axis]
     #---------------------------------------------------------
     # Defualt camera display settings:
-    @fov    = 45   # How wide can you view?
-    @near   = 1    # How close can you see?
-    @far    = 1000 # How far can you see?
-    @angle  = 0    # Which angle of rotation on @vert_orintation is the camera looking?
-    @speed  = 3.0  # Speed to move at.
-    @axial  = 1.0  # Speed to turn at.
+    @fov    = 45     # How wide can you view?
+    @near   = 1.0    # How close can you see?
+    @far    = 1000.0 # How far can you see?
+    @angle  = 0      # Which angle of rotation on @vert_orintation is the camera looking?
+    @speed  = 2.0    # Speed to move at.
+    @axial  = 0.5    # Speed to turn at.
     set_ratio # aspec ratio of view. ' screen size ' uses Gosu::Window object.
     #---------------------------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Font
@@ -31,6 +31,14 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     @string = "" # container for HUD information
     #---------------------------------------------------------
     @time_between_debug_prints = 0
+  end
+  #---------------------------------------------------------------------------------------------------------
+  #D: Rotate all openGL draws at provided angel, called from with in a ' gl do '  block.
+  #D:   caller: $program.camera3d_rotate_view(angle)
+  #---------------------------------------------------------------------------------------------------------
+  def rotate_view_draw(angle)
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
+    glRotatef(angle, @vert_orintation[0], @vert_orintation[1], @vert_orintation[2])
   end
   #---------------------------------------------------------------------------------------------------------
   #D: How to spin in place and move relitive to direction facing.
@@ -132,7 +140,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     #---------------------------------------------------------
     # Camera placement and viewing arangements:
     # The modelview matrix is where camera object information is stored.
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity
+    glMatrixMode(GL_MODELVIEW)
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glulookat
     gluLookAt(@x,@y,@z,    # Camera Location          // eye
               @tx,@ty,@tz, # Viewing Target Location  // direction

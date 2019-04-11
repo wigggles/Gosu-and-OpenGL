@@ -5,16 +5,19 @@
 # Date: 0/0/0
 #=====================================================================================================================================================
 class Object2D < Basic3D_Object
+  DEBUG_SPIN = true # spin the view of objects perspective for viewing tests.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Creates Kernal class Object. (Klass)
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     super(options)
-    type = "cardboard"
+    file_name = options[:filename] || options[:texture] || "" 
+    @angle = 0
+    @scale = options[:scale] || 1.0 # scale to stretch the texture to.
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
-    @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{type}.png"), retro: true) rescue nil
+    @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{file_name}.png"), retro: true) rescue nil
     if @texture.nil?
-      puts("Texture image file was not found for: #{type}")
+      puts("Texture image file was not found for: #{file_name}")
       exit
     end
     #--------------------------------------
@@ -39,40 +42,19 @@ class Object2D < Basic3D_Object
   #D: take place.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def gl_draw
-    # in OpenGL, you only draw at [0, 0, 0], no matter what...
-    # you stretch and pull the viewing texture (x,y,z) values to construct the world in 3D.
-    # this requires math.. lol at a later time might work on version for help with that.
+    #---------------------------------------------------------
+    @angle += 1 if DEBUG_SPIN
+    # rotate all 3D drawing after this call on viewing axis angle.
+    $program.camera3d_rotate_view(@angle)
+    # Moving function from the current point by current Camera gluPerspective x,y,z
+    glTranslatef(0, 0, 0)
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
     glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
-      glPushMatrix
-      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
-      glScalef(@texture.width, @texture.height, 1)
-      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
-      glBegin(GL_QUADS)
-        # Avaliable functions while inside block:
-        # [ glVertex, glColor, glIndex, glNormal, glTexCoord, glEvalCoord, 
-        #   glEvalPoint, glMaterial, glEdgeFlag ]
-        glTexCoord2d(@tex_info.left, @tex_info.top)
-        glVertex3f(-0.5, 0.5, 0.0)
-        glTexCoord2d(@tex_info.left, @tex_info.bottom)
-        glVertex3f(-0.5, -0.5, 0.0)
-        glTexCoord2d(@tex_info.right, @tex_info.bottom)
-        glVertex3f(0.5, -0.5, 0.0)
-        glTexCoord2d(@tex_info.right, @tex_info.top)
-        glVertex3f(0.5, 0.5, 0.0)
-      glEnd
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpopmatrix
-    glPopMatrix
-    #--------------------------------------
-    # more openGL drawing, but threw function calls instead.
-    wire_frame_cube
-  end
-  #-------------------------------------------------------------------------------------------------------------------------------------------
-  #D: Empty wire frame object rendering sample.
-  #-------------------------------------------------------------------------------------------------------------------------------------------
-  def wire_frame_cube
-    glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
+    glScalef(@scale, @scale, @scale)
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
     glBegin(GL_QUADS)
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
       glTexCoord2d(@tex_info.left, @tex_info.top); glVertex3f(-0.5, 0.5, 0.0)
       glTexCoord2d(@tex_info.left, @tex_info.bottom); glVertex3f(-0.5, -0.5, 0.0)
       glTexCoord2d(@tex_info.right, @tex_info.bottom); glVertex3f(0.5, -0.5, 0.0)

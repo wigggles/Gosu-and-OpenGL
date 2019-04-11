@@ -9,8 +9,8 @@ class Basic3D_Object
   #---------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     options = {} if options.nil?
-    @x = options[:x] || 0
-    @y = options[:y] || 0
-    @z = options[:z] || 0
+    @x = options[:x] || 0.0
+    @y = options[:y] || 0.0
+    @z = options[:z] || 0.0
   end
 end 

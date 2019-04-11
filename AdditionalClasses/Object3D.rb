@@ -13,7 +13,9 @@ class Object3D < Basic3D_Object
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     super(options)
-    @filename    = options[:filename] || ""
+    @obj_filename = options[:filename] || ""
+    @texture_file = options[:texture]  || "" # eventually wil tie into the load module.
+    @scale = 1.0 # scale to stretch the texture to.
     #---------------------------------------------------------
     @object_name = ''       # Is there an object name provided from .obj file or one set to this Ruby Object?
     @texture_resource = nil # A string or array that contains the name of textures used when drawing the .obj
@@ -23,6 +25,7 @@ class Object3D < Basic3D_Object
     @vert_cache = []    # temp storage used when loading.
     @face_count = 0     # how many faces the object has.
     @useshaders = false # draw with shaders, is set by loading the .obj file.
+    @object_model = nil # container that holds onto the 3d object.
     # debug printing of information, time between update posts for string creation.
     @time_between_debug_prints = 0
     @hud_font = Gosu::Font.new(22) # Gosu::Font container
@@ -31,11 +34,11 @@ class Object3D < Basic3D_Object
     # begin interprating the 3D object file.
     if VERBOSE
       puts("-" * 70)
-      puts("Initializing new OpenGL 3D object...")
+      puts("Initializing new OpenGL 3D object... #{self}")
     end
     load_obj_file # try loading a source .obj file
     if VERBOSE
-      puts("New 3D object created: ( #{@object_name} )")
+      puts("New 3D object created, group: ( #{@object_name} )")
       puts("-" * 70)
     end
   end
@@ -64,113 +67,64 @@ class Object3D < Basic3D_Object
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called from $program Gosu::Window inside draw, this happens before any Gosu::Font or Gosu::Image actions
-  #D: take place. in OpenGL, you only draw at [0, 0, 0], no matter what...
+  #D: take place. 
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def gl_draw
-    
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
+    glTranslatef(0, 0, 0) # Moving function from the current gluPerspective by x,y,z change
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
+    glRotatef(0.0, 0.0, 1.0, 0.0) # Rotation function.
+    # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
+    glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
+    glScalef(@scale, @scale, @scale)
+    #---------------------------------------------------------
+    # call the cached draw recording for the model.
+    @object_model.render
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Debug tool to print out information about the object.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def get_debug_string
-    string = "Object(#{@object_name}) F[#{@face_count}]\nVectors[#{@v.size},t#{@vt.size},n#{@vn.size}]"
+    string = "Object(#{@obj_filename})\nfaces(#{@face_count}) texture:\n  \"#{@texture_file}\""
     return string
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Load a .obj file into memory and use it to to build the OpenGL cache for drawing later.
+  #D: https://help.sansar.com/hc/en-us/articles/115002888226-3D-model-export-and-setup-tips-using-popular-3D-tools-
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def load_obj_file
-    read_objfile # reads source file and preps working variables to build object data points.    
+    use_wavefrontOBJ_loader
+    # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
+    @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{@texture_file}.png"), retro: true) rescue nil
+    if @texture.nil?
+      puts("Texture image file was not found for: #{@texture_file}")
+      exit
+    end
+    puts("Using texture file: \"Media/Textures/#{@texture_file}.png\"")
+    #--------------------------------------
+    # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
+    @tex_info = @texture.gl_tex_info # helper structure that contains image data
+    # This vlaue is tied into the storage method of the Gosu::Image object and can not be changed.
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
-  #D: Read each line of an object file exported with 3d party software for loading into OpenGL draw methods.
-  #D: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
+  #D: Turns out the gem for OpenGL drawing has some features tucked away in the samples.
   #-------------------------------------------------------------------------------------------------------------------------------------------
-  def read_objfile
-    # create temp vertex containers.
-    v, vt, vn = Array.new, Array.new, Array.new
-    face_verts = []
-    #---------------------------------------------------------
-    # check to make sure the file exists inside of the media folder.
-    file_dir = File.join(ROOT, "Media/3dModels/#{@filename}.obj") rescue nil
+  def use_wavefrontOBJ_loader
+    file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}.obj") rescue nil
     unless FileTest.exists?(file_dir)
-      puts("3dObject Load Error: Could not find 3D object source file. ( #{@filename}.obj )")
+      puts("3dObject Load Error: Could not find 3D object source file. ( #{@obj_filename}.obj )")
       return nil
     end
     #---------------------------------------------------------
-    # read each line from top to bottom inside the .obj text file.
-    File.open(file_dir).readlines.each do |line|
-      next if line.include?('#') # is a comment, just like // in C++, skip them in reading.
-      #---------------------------------------------------------
-      # 'o' object type if defined, name of object from software that exported.
-      if line[0] == 'o' 
-        @object_name = line.sub('o ', '').sub("\n", '')
-      #---------------------------------------------------------
-      # shaders setting?
-      elsif line[0] == 's'
-        @useshaders = line.include?('true')
-      #---------------------------------------------------------
-      # 'usemtl' is the file name of the texture to use.
-      # 'mtllib' describe the look of the model. We won’t use this in this tutorial.
-      elsif line.include?("usemtl ")
-        @texture_resource = line.sub('usemtl ', '').sub("\n", '')
-      #---------------------------------------------------------
-      # 'vt' is the texture coordinate of one vertex. [ vt %d %d %d ]
-      elsif line.include?("vt ")
-        line.split(' ').each do |float_value|
-          next if float_value.include?("vt")
-          vt << float_value.to_f
-        end
-      #---------------------------------------------------------
-      # 'vn' is the normal of one vertex. [ vn %d %d ]
-      elsif line.include?("vn ")
-        line.split(' ').each do |float_value|
-          next if float_value.include?("vn")
-          vn << float_value.to_f
-        end
-      #---------------------------------------------------------
-      # 'v' is a vertex. [ v %d %d %d ]
-      elsif line.include?("v ")
-        line.split(' ').each do |float_value|
-          next if float_value.include?("v")
-          v << float_value.to_f
-        end
-      #---------------------------------------------------------
-      # 'f' is a face. For triangle based shape exports that create the .obj file.
-      # normalize the object faces by combining them with the vertexes?
-      #   [ f %d//%d//%d %d//%d//%d %d//%d//%d ]
-      # %d/%d/%d describes the first  vertex of the triangle.
-      # %d/%d/%d describes the second vertex of the triangle.
-      # %d/%d/%d describes the third  vertex of the triangle.
-      elsif line[0] == 'f'
-        puts("Faces: \" #{line.sub("\n", '')} \"") if VERBOSE
-        line.split(' ').each do |face|
-          next if face.include?("f")
-          print(" face: #{face} [ ") if VERBOSE
-          # index is file line order.
-          face.split('//').each do |float_value|
-            face_verts << float_value.to_f
-            print("#{float_value} ") if VERBOSE
-          end
-          print("]\n") if VERBOSE
-        end
-        # keep count of the number of faces the objet uses.
-        @face_count += 1
-      end
-    end
-    #---------------------------------------------------------
-    # normalize the viewing faces using the vertexes.
-    @v.push(v[face_verts[0] - 1])   # first  vertex triangle.
-    @v.push(v[face_verts[3] - 1])   # second vertex triangle.
-    @v.push(v[face_verts[6] - 1])   # third  vertex triangle.
-    
-    @vt.push(vt[face_verts[1] - 1]) # first  vertex triangle.
-    @vt.push(vt[face_verts[4] - 1]) # second vertex triangle.
-    @vt.push(vt[face_verts[7] - 1]) # third  vertex triangle.
-    
-    @vn.push(vn[face_verts[2] - 1]) # first  vertex triangle.
-    @vn.push(vn[face_verts[5] - 1]) # second vertex triangle.
-    @vn.push(vn[face_verts[8] - 1]) # third  vertex triangle.
+    # module that manages loading of 3d objects.
+    @object_model = WavefrontOBJ::Model.new # create new container
+    @object_model.parse(file_dir)           # load file
+    @object_model.setup                     # create draw recording array
+    # confirm creaion, get some details about the object.
+    #puts("#{@object_model.groups.first[0].to_s} #{@object_model.groups[@object_name].faces.size}")
+    @object_name = @object_model.groups.first[0].to_s
+    @face_count  = @object_model.groups[@object_name].faces.size
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called when its time to release the object to GC.

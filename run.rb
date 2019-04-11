@@ -67,8 +67,16 @@ class Program < Gosu::Window
     
     # create the 3D camera viewpoint manager
     @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
+    
     # create some new openGL_objects on the screen
-    @openGL_object = Object3D.new(:filename => "CardBoardBox")
+    #@openGL_2dobject = Object2D.new(:texture => "cardboard") # 2D object, a texture basically...
+    @openGL_3dobject = Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
+  end
+  #---------------------------------------------------------------------------------------------------------
+  #D: Return the current camera used to generate the 3D openGL perspective.
+  #---------------------------------------------------------------------------------------------------------
+  def camera3d_rotate_view(angle)
+    return @camera_vantage.rotate_view_draw(angle)
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Called when a key is depressed. ID can be an integer or an array of integers that reference input symbols.
@@ -106,7 +114,8 @@ class Program < Gosu::Window
     update_input_controls
     @camera_vantage.update # update the camera
     # update world 3d objects:
-    @openGL_object.update
+    @openGL_2dobject.update unless @openGL_2dobject.nil?
+    @openGL_3dobject.update
   end
   #---------------------------------------------------------------------------------------------------------
   def draw
@@ -117,6 +126,7 @@ class Program < Gosu::Window
       # whiping screen is not the fastest way, should be internally manged better...
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glclear
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # clear the screen and the depth buffer
+      glLoadIdentity()
       #---------------------------------------------------------
       # Camera object class internally manages viewing math.
       @camera_vantage.gl_view # you * ALWAYS * view before you draw.
@@ -128,14 +138,16 @@ class Program < Gosu::Window
     # Do not use gosu.draw while inside a gl operation function call! use them before or after blocks.
     @camera_vantage.draw # perhaps a HUD location?
     # objects draw to the " HUD area " as well? independent Gosu call back functions for the objects.
-    @openGL_object.draw
+    @openGL_2dobject.draw unless @openGL_2dobject.nil?
+    @openGL_3dobject.draw
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Draw all the screen obects onto fresh screen, this can only be called from within a ' gl do ' block
   #D: or it will break. 
   #---------------------------------------------------------------------------------------------------------
   def open_glDraw
-    @openGL_object.gl_draw
+    @openGL_2dobject.gl_draw unless @openGL_2dobject.nil?
+    @openGL_3dobject.gl_draw
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Called when the window in the OS is closed threw the system interfaces.
@@ -144,7 +156,8 @@ class Program < Gosu::Window
   def close
     super
     @camera_vantage.destroy
-    @openGL_object.destroy
+    @openGL_2dobject.destroy unless @openGL_2dobject.nil?
+    @openGL_3dobject.destroy
     self.close!
   end
 end
