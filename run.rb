@@ -64,13 +64,13 @@ class Program < Gosu::Window
     super(RESOLUTION[0], RESOLUTION[1], {:update_interval => UP_MS_DRAW, :fullscreen => ISFULLSCREEN})
     $program = self # global pointer to window creation object
     controls_init   # prep the input controls scheme manager
-    
+    @map_objects = [] # container for map related objects.
     # create the 3D camera viewpoint manager
     @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
-    
+    #---------------------------------------------------------
     # create some new openGL_objects on the screen
-    #@openGL_2dobject = Object2D.new(:texture => "cardboard") # 2D object, a texture basically...
-    @openGL_3dobject = Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
+    #@map_objects << Object2D.new(:texture => "cardboard") # 2D object, a texture basically...
+    @map_objects << Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Return the current camera used to generate the 3D openGL perspective.
@@ -114,8 +114,9 @@ class Program < Gosu::Window
     update_input_controls
     @camera_vantage.update # update the camera
     # update world 3d objects:
-    @openGL_2dobject.update unless @openGL_2dobject.nil?
-    @openGL_3dobject.update
+    @map_objects.each do |object3d|
+      object3d.update unless object3d.nil?
+    end
   end
   #---------------------------------------------------------------------------------------------------------
   def draw
@@ -138,16 +139,18 @@ class Program < Gosu::Window
     # Do not use gosu.draw while inside a gl operation function call! use them before or after blocks.
     @camera_vantage.draw # perhaps a HUD location?
     # objects draw to the " HUD area " as well? independent Gosu call back functions for the objects.
-    @openGL_2dobject.draw unless @openGL_2dobject.nil?
-    @openGL_3dobject.draw
+    @map_objects.each do |object3d|
+      object3d.draw unless object3d.nil?
+    end
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Draw all the screen obects onto fresh screen, this can only be called from within a ' gl do ' block
   #D: or it will break. 
   #---------------------------------------------------------------------------------------------------------
   def open_glDraw
-    @openGL_2dobject.gl_draw unless @openGL_2dobject.nil?
-    @openGL_3dobject.gl_draw
+    @map_objects.each do |object3d|
+      object3d.gl_draw unless object3d.nil?
+    end
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Called when the window in the OS is closed threw the system interfaces.
@@ -156,8 +159,9 @@ class Program < Gosu::Window
   def close
     super
     @camera_vantage.destroy
-    @openGL_2dobject.destroy unless @openGL_2dobject.nil?
-    @openGL_3dobject.destroy
+    @map_objects.each do |object3d|
+      object3d.destroy unless object3d.nil?
+    end
     self.close!
   end
 end
