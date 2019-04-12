@@ -16,5 +16,7 @@ the files contents, but you could also edit/create them by hand if you wanted to
 
 ----
 Additional Notes on the .obj file format. Just use Notepad.exe if you really want too...
+
 https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_Texture_Coordinate_Indices
+
 https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
