@@ -104,7 +104,7 @@ module WavefrontOBJ
       wo_lines = IO.readlines( wofilename )
       @current_group = get_group( "default" )
       @current_material_name = "default"
-      puts("+Loading .obj file:\n  \"#{wofilename}\"") if @verbose
+      puts("+Loading .obj file:\n  \"#{wofilename.sub(ROOT, '')}\"") if @verbose
       # parse file context
       wo_lines.each do |line|
         tokens = line.split

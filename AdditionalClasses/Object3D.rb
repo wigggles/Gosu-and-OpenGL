@@ -99,13 +99,14 @@ class Object3D < Basic3D_Object
   def load_obj_file
     use_wavefrontOBJ_loader
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
-    file_dir = File.join(ROOT, "Media/Textures/#{@texture_file}.png")
+    file = "Media/Textures/#{@texture_file}.png"
+    file_dir = File.join(ROOT, file)
     @texture = Gosu::Image.new(file_dir, retro: true) rescue nil
     if @texture.nil?
       puts("Texture image file was not found for: #{@texture_file}")
       exit
     end
-    puts("Using local 3D object file texture setting:\n  \"#{file_dir}\"")
+    puts("Using local 3D object file texture setting:\n  \"#{file}\"")
     #--------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
     @tex_info = @texture.gl_tex_info # helper structure that contains image data
