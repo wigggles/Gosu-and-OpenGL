@@ -22,3 +22,9 @@ Additional Notes on the .obj file format. Just use Notepad.exe if you really wan
 https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_Texture_Coordinate_Indices
 
 https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
+
+### Applying Textures:
+
+https://0fps.net/2013/07/09/texture-atlases-wrapping-and-mip-mapping/
+
+https://gamedev.stackexchange.com/questions/102389/how-to-implement-index-buffer-object-ibos-with-texture-coordinates-in-opengl
