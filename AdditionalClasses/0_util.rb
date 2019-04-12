@@ -43,7 +43,6 @@ module WavefrontOBJ
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def gl_draw( model )
-      puts(" * \"#{@name}\" : Faces(#{@faces.size}) openGL draw list cached.")
       @face_index.each do |fidx|
         glBegin( GL_POLYGON )
         face = @faces[fidx]
@@ -125,10 +124,11 @@ module WavefrontOBJ
     #D: Record the draw action for faster refrence in later gl_draws for the object.
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def setup
-      puts("+Constructing Groups...")
+      puts("+Constructing Groups...") if @verbose
       @groups.each_value do |grp|
         grp.displaylist = glGenLists( 1 )
         glNewList(grp.displaylist, GL_COMPILE )
+        puts(" * \"#{grp.name}\" : Faces(#{grp.faces.size}) openGL draw list cached.") if @verbose
         grp.gl_draw(self) # create precahced draw operation
         glEndList()
       end
