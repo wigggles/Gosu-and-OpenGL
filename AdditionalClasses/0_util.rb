@@ -113,11 +113,11 @@ module WavefrontOBJ
       end
       @object_name = wofilename.split('/').last
       @object_name.sub!(".obj", '')
-      print("+Object name: \"#{@object_name}\" |  ")   if @verbose
+      puts("+Object name: \"#{@object_name}\"  |  Internal Objects( #{@objects.size} )") if @verbose
       if get_group("default").faces.empty?
         @groups.delete("default")
       end
-      puts("Groups:(#{@groups.keys})")           if @verbose
+      puts("+Groups: #{@groups.keys}") if @verbose
       @current_group = nil
       @current_material_name = nil
     end # parse
