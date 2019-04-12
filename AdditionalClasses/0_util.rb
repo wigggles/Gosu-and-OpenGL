@@ -43,7 +43,7 @@ module WavefrontOBJ
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def gl_draw( model )
-      puts(" * \"#{@name}\" Faces(#{@faces.size}) openGL draw list cached.")
+      puts(" * \"#{@name}\" : Faces(#{@faces.size}) openGL draw list cached.")
       @face_index.each do |fidx|
         glBegin( GL_POLYGON )
         face = @faces[fidx]
