@@ -116,7 +116,6 @@ module WavefrontOBJ
       if get_group("default").faces.empty?
         @groups.delete("default")
       end
-      puts("+Groups: #{@groups.keys}") if @verbose
       @current_group = nil
       @current_material_name = nil
     end # parse
@@ -124,7 +123,7 @@ module WavefrontOBJ
     #D: Record the draw action for faster refrence in later gl_draws for the object.
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def setup
-      puts("+Constructing Groups...") if @verbose
+      puts("+Constructing a total of ( #{@groups.keys.size} ) Groups:") if @verbose
       @groups.each_value do |grp|
         grp.displaylist = glGenLists( 1 )
         glNewList(grp.displaylist, GL_COMPILE )
