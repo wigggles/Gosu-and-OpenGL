@@ -34,7 +34,7 @@ include Konfigure # inclusion of CONSTANT settings system wide.
 # Load all additional source scripts. Files need to be in directory ALPHABETICAL order if refrenced in a later object source file.
 script_dir = File.join(ROOT, "AdditionalClasses")
 if FileTest.directory?(script_dir)
-  # map to hash parrent directory
+  # map to hash parrent directory, !ALPHABETICAL loading order!
   files = [script_dir].map do |path|
     if File.directory?(path)
       Dir[File.join(path, '**', '*.rb')] # grab EVERY .rb file in provided directory.
@@ -42,9 +42,10 @@ if FileTest.directory?(script_dir)
       path
     end
   end.flatten
-  # require all located source file_dirs
+  # require all located source file_dirs, if you dont want to use ALPHABETICAL order,
+  # then make your changes here...
   files.each do |source_file|
-    begin
+    begin # load error net
       require(source_file)
     rescue => error # catch syntax errors on a file basis
       temp = source_file.split('/').last
@@ -77,10 +78,11 @@ class Program < Gosu::Window
     @map_objects[0].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
   end
   #---------------------------------------------------------------------------------------------------------
-  #D: Return the current camera used to generate the 3D openGL perspective.
+  #D: Return the current camera Object used to generate the 3D openGL perspective. 
+  #D:  ' $program.grab_the_camera3d '
   #---------------------------------------------------------------------------------------------------------
-  def camera3d_rotate_view(angle)
-    return @camera_vantage.rotate_view_draw(angle)
+  def grab_the_camera3d
+    return @camera_vantage
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Called when a key is depressed. ID can be an integer or an array of integers that reference input symbols.
@@ -136,7 +138,11 @@ class Program < Gosu::Window
       # Camera object class internally manages viewing math.
       @camera_vantage.gl_view # you * ALWAYS * view before you draw.
       # draw the rest of the 3D objects:
-      open_glDraw
+      unless @map_objects.empty?
+        @map_objects.each do |object3d|
+          object3d.gl_draw unless object3d.nil?
+        end
+      end
     end
     # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
     #---------------------------------------------------------
@@ -145,15 +151,6 @@ class Program < Gosu::Window
     # objects draw to the " HUD area " as well? independent Gosu call back functions for the objects.
     @map_objects.each do |object3d|
       object3d.draw unless object3d.nil?
-    end
-  end
-  #---------------------------------------------------------------------------------------------------------
-  #D: Draw all the screen obects onto fresh screen, this can only be called from within a ' gl do ' block
-  #D: or it will break. 
-  #---------------------------------------------------------------------------------------------------------
-  def open_glDraw
-    @map_objects.each do |object3d|
-      object3d.gl_draw unless object3d.nil?
     end
   end
   #---------------------------------------------------------------------------------------------------------
