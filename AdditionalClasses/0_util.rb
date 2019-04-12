@@ -112,7 +112,7 @@ module WavefrontOBJ
       end
       @object_name = wofilename.split('/').last
       @object_name.sub!(".obj", '')
-      puts("+Object name: \"#{@object_name}\"  |  Internal Objects( #{@objects.size} )") if @verbose
+      puts("+Object name is \"#{@object_name}\" with (#{@objects.size}) Internal Objects.") if @verbose
       if get_group("default").faces.empty?
         @groups.delete("default")
       end
@@ -123,7 +123,7 @@ module WavefrontOBJ
     #D: Record the draw action for faster refrence in later gl_draws for the object.
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def setup
-      puts("+Constructing a total of ( #{@groups.keys.size} ) Groups:") if @verbose
+      puts("+Constructing a total of (#{@groups.keys.size}) Groups:") if @verbose
       @groups.each_value do |grp|
         grp.displaylist = glGenLists( 1 )
         glNewList(grp.displaylist, GL_COMPILE )
@@ -131,9 +131,9 @@ module WavefrontOBJ
         grp.gl_draw(self) # create precahced draw operation
         glEndList()
       end
-      puts("+Faces Total Count: [ #{self.get_face_count} ]") if @verbose
+      puts("+Total Count of Faces: [ #{self.get_face_count} ]") if @verbose
       # display materials information
-      puts("+Material Lib: \"#{material_lib}\"  |  NameRefrences: ( #{@current_materials.size} )")  if @verbose
+      puts("+Material Lib: \"#{material_lib}\" with (#{@current_materials.size}) Name Refrences.")  if @verbose
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     #D: Returns Group object (or creates new Group when there's no matching group found)

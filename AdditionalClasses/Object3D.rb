@@ -34,7 +34,7 @@ class Object3D < Basic3D_Object
     end
     load_obj_file # try loading a source .obj file
     if @verbose
-      puts("New 3D object created from: ( #{@object_name}.obj )")
+      puts("New 3D object created from: \"#{@object_name}.obj\"")
       puts("-" * 70)
     end
   end
