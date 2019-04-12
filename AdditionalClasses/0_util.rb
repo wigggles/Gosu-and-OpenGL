@@ -74,9 +74,9 @@ module WavefrontOBJ
       @texcoord  = Array.new
       @groups    = Hash.new   # face Groups
 
-      @smooth_shading   = false
-      @material_lib     = ""
-      @current_material = ""
+      @smooth_shading    = false
+      @material_lib      = ""
+      @current_materials = []
       @objects = []
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ module WavefrontOBJ
       wo_lines = IO.readlines( wofilename )
       @current_group = get_group( "default" )
       @current_material_name = "default"
-      puts("+Loading .obj file:\n  '#{wofilename}'") if @verbose
+      puts("+Loading .obj file:\n  \"#{wofilename}\"") if @verbose
       # parse file context
       wo_lines.each do |line|
         tokens = line.split
@@ -134,7 +134,7 @@ module WavefrontOBJ
       end
       puts("+Faces Total Count: [ #{self.get_face_count} ]") if @verbose
       # display materials information
-      puts("+Material Lib: \'#{material_lib}\'")  if @verbose
+      puts("+Material Lib: \"#{material_lib}\"  |  NameRefrences: ( #{@current_materials.size} )")  if @verbose
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     #D: Returns Group object (or creates new Group when there's no matching group found)
@@ -234,7 +234,7 @@ module WavefrontOBJ
       #---------------------------------------------------------
       # The material name matches a named material definition in an external .mtl file.
       when "usemtl"
-        @current_material = values.first
+        @current_materials << values.first
       #---------------------------------------------------------
       else
         puts "  -Unsupported token #{key} given. Ignored."
