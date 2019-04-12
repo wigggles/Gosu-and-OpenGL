@@ -3,7 +3,7 @@
 class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super class.
   attr_accessor :fov, :near, :far, :ratio, :tx, :ty, :tz, :vert_orintation, :speed, :axial
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
-  DEBUG_SPIN = true # spin the camera in place to assist with viewing tests.
+  DEBUG_SPIN = false # spin the camera in place to assist with viewing tests.
   #---------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     # set camera 3D world location
@@ -15,15 +15,14 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     @tz = options[:tz] || 0.0
     #---------------------------------------------------------
     # which way is up?
-    @vert_orintation = [0, 1, 0] # [X axis, Y axis, Z axis]
+    @vert_orintation = [1.0, 1.0, 1.0] # [X axis scale, Y axis scale, Z axis scale]
     #---------------------------------------------------------
     # Defualt camera display settings:
     @fov    = 45     # How wide can you view?
     @near   = 1.0    # How close can you see?
     @far    = 1000.0 # How far can you see?
-    @angle  = 0      # Which angle of rotation on @vert_orintation is the camera looking?
-    @speed  = 2.0    # Speed to move at.
-    @axial  = 0.5    # Speed to turn at.
+    @speed  = 0.1    # Scale Speed to move at.
+    @axial  = 0.1    # Scale Speed to turn at.
     set_ratio # aspec ratio of view. ' screen size ' uses Gosu::Window object.
     #---------------------------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Font
@@ -33,32 +32,24 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     @time_between_debug_prints = 0
   end
   #---------------------------------------------------------------------------------------------------------
-  #D: Rotate all openGL draws at provided angel, called from with in a ' gl do '  block.
-  #D:   caller: $program.camera3d_rotate_view(angle)
-  #---------------------------------------------------------------------------------------------------------
-  def rotate_view_draw(angle)
-    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
-    glRotatef(angle, @vert_orintation[0], @vert_orintation[1], @vert_orintation[2])
-  end
-  #---------------------------------------------------------------------------------------------------------
   #D: How to spin in place and move relitive to direction facing.
   #---------------------------------------------------------------------------------------------------------
   def turning_move_style
     # spin
-    @angle -= @axial if $program.holding?(:turn_left)
-    @angle += @axial if $program.holding?(:turn_right)
+    @angle[0] -= @axial if $program.holding?(:turn_left)
+    @angle[0] += @axial if $program.holding?(:turn_right)
     # momentum
     if $program.holding?(:move_backward)
-      @x += @speed * Math::cos(@angle * Math::PI / 180.0)
-      @z += @speed * Math::sin(@angle * Math::PI / 180.0)
+      @x += @speed * Math::cos(@angle[0] * Math::PI / 180.0)
+      @z += @speed * Math::sin(@angle[0] * Math::PI / 180.0)
     elsif $program.holding?(:move_forword)
-      @x -= @speed * Math::cos(@angle * Math::PI / 180.0)
-      @z -= @speed * Math::sin(@angle * Math::PI / 180.0)
+      @x -= @speed * Math::cos(@angle[0] * Math::PI / 180.0)
+      @z -= @speed * Math::sin(@angle[0] * Math::PI / 180.0)
     end
     # camera position updates
-    @tx = @x - Math::cos(@angle * Math::PI / 180.0)
+    @tx = @x - Math::cos(@angle[0] * Math::PI / 180.0)
     @ty = @y 
-    @tz = @z - Math::sin(@angle * Math::PI / 180.0) 
+    @tz = @z - Math::sin(@angle[0] * Math::PI / 180.0) 
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Refer to image: ' Media/Screen_Shots/origin_explained.png '
@@ -104,13 +95,16 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
         @time_between_debug_prints -= 1
       end
     end
+    # rotate all 3D drawing after this call on camera viewing axis angle. Think world view angle.
+    @angle[0] += 1.0 if DEBUG_SPIN
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: String used to convey usefull information to an area where the user can see it.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def get_debug_string
-    s =  "3D Camera: [#{@x},#{@y},#{@z}] - [#{@tx},#{@ty},#{@tz}]\n\t"
-    s += "Fov: #{@fov} View: #{@near} -> #{@far}\n\t"
+    s =  "3D Camera: [ #{@x.round(2)}, #{@y.round(2)}, #{@z.round(2)} ]\n"
+    s += "  T[ #{@tx.round(2)}, #{@ty.round(2)}, #{@tz.round(2)} ]\n"
+    s += "Fov: #{@fov.round(2)} View: #{@near.round(2)} -> #{@far.round(2)}\n\t"
     s += "Gosu::Window FPS (#{Gosu.fps})"
     return s
   end
@@ -149,10 +143,9 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
       @vert_orintation[0], @vert_orintation[1], @vert_orintation[2]
     ) # Defining the Viewing perspective is done in this block.
     #---------------------------------------------------------
-    @angle += 1 if DEBUG_SPIN
-    # rotate all 3D drawing after this call on viewing axis angle.
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
-    glRotatef(@angle, @vert_orintation[0], @vert_orintation[1], @vert_orintation[2])
+    # glRotatef(angle, X axis scale, Y axis scale, Z axis scale)
+    glRotatef(@angle[0], @vert_orintation[0], @vert_orintation[1], @vert_orintation[2])
   end
   #---------------------------------------------------------------------------------------------------------
   def destroy

@@ -70,8 +70,11 @@ class Program < Gosu::Window
     #---------------------------------------------------------
     # create some new openGL_objects on the screen
     #@map_objects << Object2D.new(:texture => "cardboard", :x => 10.0, :y => 10) # 2D object, a texture basically...
-    #@map_objects << Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
-    @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")  # 3D object
+    @map_objects << Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
+    #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")  # 3D object
+    #---------------------------------------------------------
+    # play with some rotation settings...
+    @map_objects[0].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Return the current camera used to generate the 3D openGL perspective.

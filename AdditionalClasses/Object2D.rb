@@ -11,12 +11,11 @@ class Object2D < Basic3D_Object
   def initialize(options = {})
     super(options)
     file_name = options[:filename] || options[:texture] || "" 
-    @angle = 0
-    @scale = options[:scale] || 1.0 # scale to stretch the texture to.
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
     @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{file_name}.png"), retro: true) rescue nil
     if @texture.nil?
       puts("Texture image file was not found for: #{file_name}")
+      puts caller # back trace
       exit
     end
     #--------------------------------------
@@ -28,7 +27,8 @@ class Object2D < Basic3D_Object
   #D: Usually called from a loop to push variable changes and automate function triggers.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def update
-		
+    super
+    
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called from $program Gosu::Window inside the draw method que. This is called after the interjection of gl_draw function.
@@ -48,10 +48,17 @@ class Object2D < Basic3D_Object
       # Moving function from the current point by current Camera gluPerspective x,y,z
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
       glTranslatef(@x, @y, @z)
+      #---------------------------------------------------------
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
       glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
       glScalef(@scale, @scale, @scale)
+      #---------------------------------------------------------
+      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
+      # glRotatef(angle, X axis scale, Y axis scale, Z axis scale)
+      glRotatef(@angle.first, @angle[1], @angle[2], @angle[3])
+      #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
       glBegin(GL_QUADS)
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f

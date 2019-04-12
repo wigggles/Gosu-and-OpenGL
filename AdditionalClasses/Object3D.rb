@@ -3,6 +3,9 @@
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 # Version 0.0
 # Date: 0/0/0
+#-----------------------------------------------------------------------------------------------------------------------------------------------------
+# Don't want to make .obj files your self, check for free ones online...
+#   https://www.hongkiat.com/blog/60-excellent-free-3d-model-websites/
 #=====================================================================================================================================================
 class Object3D < Basic3D_Object
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
@@ -15,24 +18,17 @@ class Object3D < Basic3D_Object
     super(options)
     @obj_filename = options[:filename] || ""
     @texture_file = options[:texture]  || "" # eventually wil tie into the load module.
-    @scale = 1.0 # scale to stretch the texture to.
-    @angle = 0.0
     #---------------------------------------------------------
-    @object_name = ''       # Is there an object name provided from .obj file or one set to this Ruby Object?
+    @object_name  = ''      # Is there an object name provided from .obj file or one set to this Ruby Object?
+    @face_count   = 0       # how many faces the object has.
+    @object_model = nil     # container that holds onto the wavefront 3d object data.
     @texture_resource = nil # A string or array that contains the name of textures used when drawing the .obj
-    @v  = [] # vertexes
-    @vt = [] # vertexes texture coordinate.
-    @vn = [] # vertexes face normals, if provied in file.
-    @vert_cache = []    # temp storage used when loading.
-    @face_count = 0     # how many faces the object has.
-    @useshaders = false # draw with shaders, is set by loading the .obj file.
-    @object_model = nil # container that holds onto the 3d object.
     # debug printing of information, time between update posts for string creation.
     @time_between_debug_prints = 0
     @hud_font = Gosu::Font.new(22) # Gosu::Font container
-    @string = "" # container for HUD information
+    @string   = "" # container for HUD information
     #---------------------------------------------------------
-    # begin interprating the 3D object file.
+    # begin interprating the 3D .obj file.
     if VERBOSE
       puts("-" * 70)
       puts("Initializing new OpenGL 3D object... #{self}")
@@ -47,7 +43,8 @@ class Object3D < Basic3D_Object
   #D: Usually called from a loop to push variable changes and automate function triggers.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def update
-    @angle += 1
+    super
+    #---------------------------------------------------------
     # debug information:
     unless DEBUG_PRINT_WAIT.nil?
       if @time_between_debug_prints <= 0
@@ -78,11 +75,15 @@ class Object3D < Basic3D_Object
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/gltranslatef
       glTranslatef(@x, @y, @z) # Moving function from the current gluPerspective by x,y,z change
+      #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glrotatef
-      glRotatef(0.0, @angle, 0.0, 0.0) # Rotation function.
+      # glRotatef(angle, X axis scale, Y axis scale, Z axis scale)
+      glRotatef(@angle[0], @angle[1], @angle[2], @angle[3])
+      #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
       glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
       glScalef(@scale, @scale, @scale)
       #---------------------------------------------------------
