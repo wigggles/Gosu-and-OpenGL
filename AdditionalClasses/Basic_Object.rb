@@ -5,7 +5,7 @@
 # Date: 0/0/0
 #=====================================================================================================================================================
 class Basic3D_Object
-  attr_accessor :x, :y, :z, :scale, :angle
+  attr_accessor :x, :y, :z, :scale, :angle, :verbose
   #---------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     options = {} if options.nil?
@@ -13,12 +13,14 @@ class Basic3D_Object
     @y = options[:y] || 0.0
     @z = options[:z] || 0.0
     # Scale to stretch the texture to.
-    @scale = options[:scale] || 1.0  
+    @scale = options[:scale] || 1.0 
+    # spit out addional information to terminal when running.
+    @verbose = options[:verbose] || false 
     #---------------------------------------------------------
     reset_rotation_axis
   end
   #---------------------------------------------------------------------------------------------------------
-  #D: Perform common actions, angular object rotaiton perhaps?
+  #D: Perform common actions, angular object rotation perhaps?
   #---------------------------------------------------------------------------------------------------------
   def update
     # current plus speed
@@ -39,7 +41,7 @@ class Basic3D_Object
     axis  = options[:axis]  || 'x'
     force = options[:force] || 0.0
     #---------------------------------------------------------
-    axis_list = axis.scan(/\w/)
+    axis_list = axis.scan(/\w/) # multiple defined rotation axis? 'XY' or 'Zxy' type stuff.. or just 'z'
     axis_list.each do |axis|
       case axis
       when 'x', 'X'

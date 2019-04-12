@@ -10,11 +10,11 @@ class Object2D < Basic3D_Object
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     super(options)
-    file_name = options[:filename] || options[:texture] || "" 
+    @file_name = options[:filename] || options[:texture] || "" 
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
-    @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{file_name}.png"), retro: true) rescue nil
+    @texture = Gosu::Image.new(File.join(ROOT, "Media/Textures/#{@file_name}.png"), retro: true) rescue nil
     if @texture.nil?
-      puts("Texture image file was not found for: #{file_name}")
+      puts("Texture image file was not found for: #{@file_name}")
       puts caller # back trace
       exit
     end
@@ -76,5 +76,12 @@ class Object2D < Basic3D_Object
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def destroy
 
+  end
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  #D: Debug tool to print out information about the object.
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  def get_debug_string
+    string = "2DTexture(#{@file_name})"
+    return string
   end
 end

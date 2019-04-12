@@ -9,7 +9,6 @@
 #=====================================================================================================================================================
 class Object3D < Basic3D_Object
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
-  VERBOSE = true # spit out addional information to terminal when running.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Creates Kernal class Object. (Klass)
   #D: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/#loading-the-obj
@@ -29,12 +28,12 @@ class Object3D < Basic3D_Object
     @string   = "" # container for HUD information
     #---------------------------------------------------------
     # begin interprating the 3D .obj file.
-    if VERBOSE
+    if @verbose
       puts("-" * 70)
       puts("Initializing new OpenGL 3D object... #{self}")
     end
     load_obj_file # try loading a source .obj file
-    if VERBOSE
+    if @verbose
       puts("New 3D object created, group: ( #{@object_name} )")
       puts("-" * 70)
     end
@@ -94,13 +93,6 @@ class Object3D < Basic3D_Object
     glPopMatrix
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
-  #D: Debug tool to print out information about the object.
-  #-------------------------------------------------------------------------------------------------------------------------------------------
-  def get_debug_string
-    string = "Object(#{@obj_filename})\nfaces(#{@face_count}) texture:\n  \"#{@texture_file}\""
-    return string
-  end
-  #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Load a .obj file into memory and use it to to build the OpenGL cache for drawing later.
   #D: https://help.sansar.com/hc/en-us/articles/115002888226-3D-model-export-and-setup-tips-using-popular-3D-tools-
   #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -113,7 +105,7 @@ class Object3D < Basic3D_Object
       puts("Texture image file was not found for: #{@texture_file}")
       exit
     end
-    puts("Using texture file:\n  \"#{file_dir}\"")
+    puts("Using local 3D object file texture setting:\n  \"#{file_dir}\"")
     #--------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
     @tex_info = @texture.gl_tex_info # helper structure that contains image data
@@ -130,18 +122,26 @@ class Object3D < Basic3D_Object
     end
     #---------------------------------------------------------
     # module that manages loading of 3d objects.
-    @object_model = WavefrontOBJ::Model.new # create new container
+    options = {:verbose => @verbose}
+    @object_model = WavefrontOBJ::Model.new(options)
+    # seperated to allow for load steping for larger object groups...
     @object_model.parse(file_dir)           # load file
     @object_model.setup                     # create draw recording array
     # confirm creaion, get some details about the object.
-    #puts("#{@object_model.groups.first[0].to_s} #{@object_model.groups[@object_name].faces.size}")
-    @object_name = @object_model.groups.first[0].to_s
-    @face_count  = @object_model.groups[@object_name].faces.size
+    @object_name = @object_model.object_name
+    @face_count  = @object_model.get_face_count
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called when its time to release the object to GC.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def destroy
 
+  end
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  #D: Debug tool to print out information about the object.
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  def get_debug_string
+    string = "Object(#{@obj_filename})\nfaces(#{@face_count}) texture:\n  \"#{@texture_file}\""
+    return string
   end
 end

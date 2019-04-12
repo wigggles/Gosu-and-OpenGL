@@ -63,16 +63,18 @@ class Program < Gosu::Window
   #---------------------------------------------------------------------------------------------------------
   def initialize
     super(RESOLUTION[0], RESOLUTION[1], {:update_interval => UP_MS_DRAW, :fullscreen => ISFULLSCREEN})
-    $program = self # global pointer to window creation object
-    controls_init   # prep the input controls scheme manager
+    $program = self   # global pointer to window creation object
+    controls_init     # prep the input controls scheme manager
     @map_objects = [] # container for map related objects.
     # create the 3D camera viewpoint manager
     @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
     #---------------------------------------------------------
     # create some new openGL_objects on the screen
-    #@map_objects << Object2D.new(:texture => "cardboard", :x => 10.0, :y => 10) # 2D object, a texture basically...
-    @map_objects << Object3D.new(:filename => "CardBoardBox", :texture => "cardboard")  # 3D object
-    #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")  # 3D object
+    # 2D object, a texture basically...
+    #@map_objects << Object2D.new(:texture => "cardboard", :x => 10.0, :y => 10) 
+    options = {:filename => "CardBoardBox", :texture => "cardboard", :verbose => true}
+    @map_objects << Object3D.new(options)
+    #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")
     #---------------------------------------------------------
     # play with some rotation settings...
     @map_objects[0].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})

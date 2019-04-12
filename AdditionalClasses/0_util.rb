@@ -15,7 +15,6 @@
 # Additional Notes on the .obj file format.
 #   https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_Texture_Coordinate_Indices
 #   https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
-#   https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_Texture_Coordinate_Indices
 #=====================================================================================================================================================
 module WavefrontOBJ
   #=====================================================================================================================================================
@@ -44,7 +43,7 @@ module WavefrontOBJ
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def gl_draw( model )
-      puts("WavefrontOBJ- G.[#{@name}] openGL draw list cache, Faces(#{@faces.size})")
+      puts(" * \"#{@name}\" Faces(#{@faces.size}) openGL draw list cached.")
       @face_index.each do |fidx|
         glBegin( GL_POLYGON )
         face = @faces[fidx]
@@ -63,14 +62,32 @@ module WavefrontOBJ
   end
   #=====================================================================================================================================================
   class Model
-    attr_reader :vertex, :normal, :texcoord
-    attr_reader :groups
+    attr_reader :vertex, :normal, :texcoord, :smooth_shading, :material_lib
+    attr_reader :object_name, :groups, :objects
     #-------------------------------------------------------------------------------------------------------------------------------------------
-    def initialize
+    def initialize(options = {})
+      @verbose = options[:verbose] || false
+      @object_name = "Defualt" # sat by loaded file name.
+
       @vertex    = Array.new
       @normal    = Array.new
       @texcoord  = Array.new
       @groups    = Hash.new   # face Groups
+
+      @smooth_shading   = false
+      @material_lib     = ""
+      @current_material = ""
+      @objects = []
+    end
+    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #D: return the objects total face count.
+    #-------------------------------------------------------------------------------------------------------------------------------------------
+    def get_face_count
+      count = 0
+      @groups.each_value do |grp|
+        count += grp.faces.size
+      end
+      return count
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     #D: Called from with in a ' gl do ' block after the object was properly loaded.
@@ -86,18 +103,21 @@ module WavefrontOBJ
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def parse( wofilename )
       wo_lines = IO.readlines( wofilename )
-      # parse context
       @current_group = get_group( "default" )
       @current_material_name = "default"
-      puts("Loading .obj file: '#{wofilename}'")
+      puts("+Loading .obj file:\n  '#{wofilename}'") if @verbose
+      # parse file context
       wo_lines.each do |line|
         tokens = line.split
-        process_line( tokens[0], tokens[1..tokens.length-1] )
+        process_line(tokens[0], tokens[1..tokens.length-1])
       end
+      @object_name = wofilename.split('/').last
+      @object_name.sub!(".obj", '')
+      print("+Object name: \"#{@object_name}\" |  ")   if @verbose
       if get_group("default").faces.empty?
         @groups.delete("default")
       end
-      puts("Groups:(#{@groups.keys})")
+      puts("Groups:(#{@groups.keys})")           if @verbose
       @current_group = nil
       @current_material_name = nil
     end # parse
@@ -105,12 +125,16 @@ module WavefrontOBJ
     #D: Record the draw action for faster refrence in later gl_draws for the object.
     #-------------------------------------------------------------------------------------------------------------------------------------------
     def setup
+      puts("+Constructing Groups...")
       @groups.each_value do |grp|
         grp.displaylist = glGenLists( 1 )
         glNewList(grp.displaylist, GL_COMPILE )
         grp.gl_draw(self) # create precahced draw operation
         glEndList()
       end
+      puts("+Faces Total Count: [ #{self.get_face_count} ]") if @verbose
+      # display materials information
+      puts("+Material Lib: \'#{material_lib}\'")  if @verbose
     end
     #-------------------------------------------------------------------------------------------------------------------------------------------
     #D: Returns Group object (or creates new Group when there's no matching group found)
@@ -140,6 +164,11 @@ module WavefrontOBJ
         values.collect! { |v| v.to_f }
         @texcoord.push( values[0..1] ) # u and v
       #---------------------------------------------------------
+      # Named objects and polygon groups.
+      when "o"
+        @objects << values.first
+      #---------------------------------------------------------
+      # Polygon group names.
       when "g", "group"
         if values.length == 0
           # p "anonymous group detected. treat as \"default\"."
@@ -149,6 +178,11 @@ module WavefrontOBJ
           @current_group = get_group( values[0] )
         end
         @current_group.mtl_name = @current_material_name
+      #---------------------------------------------------------
+      # Smooth shading across polygons?
+      when "s"
+        setting = values.first # convert into boolean
+        @smooth_shading = setting.include?('on') or setting.include?('true')
       #---------------------------------------------------------
       when "f"
         vertex_count = values.length
@@ -192,6 +226,15 @@ module WavefrontOBJ
       #---------------------------------------------------------
       when /^\#+/, nil
         #puts "comment or empty line."
+      #---------------------------------------------------------
+      # The .mtl file may contain one or more named material definitions. 
+      when "mtllib"
+        # https://en.wikipedia.org/wiki/Materials_system
+        @material_lib = values.first
+      #---------------------------------------------------------
+      # The material name matches a named material definition in an external .mtl file.
+      when "usemtl"
+        @current_material = values.first
       #---------------------------------------------------------
       else
         puts "  -Unsupported token #{key} given. Ignored."
