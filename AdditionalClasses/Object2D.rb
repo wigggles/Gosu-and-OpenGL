@@ -61,6 +61,9 @@ class Object2D < Basic3D_Object
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
       glBegin(GL_QUADS)
+        #---------------------------------------------------------
+        # https://docs.microsoft.com/en-us/windows/desktop/opengl/glnormal3f
+        glNormal3f(0.0, 1.0, 0.0)
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/glvertex3f
         glTexCoord2d(@tex_info.left, @tex_info.top); glVertex3f(-0.5, 0.5, 0.0)
         glTexCoord2d(@tex_info.left, @tex_info.bottom); glVertex3f(-0.5, -0.5, 0.0)

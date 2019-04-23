@@ -6,26 +6,26 @@
 #=====================================================================================================================================================
 puts "\n" * 3 # some top buffer for terminal notifications.
 puts "*" * 70
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
 # https://www.codecademy.com/articles/ruby-command-line-argv
 APP_NAME = 'Desktop Garage'
 case ARGV.first
 when 'debug'
   puts "#{APP_NAME} is in debug mode."
 end
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
 ROOT = File.expand_path('.',__dir__)
 puts "starting up..."
 # Gem used for OS window management and display libs as well as User input call backs.
 require 'gosu'    # https://rubygems.org/gems/gosu
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
 # OpenGL pre-requiries.
 require 'opengl'  # https://rubygems.org/gems/opengl-bindings
 require 'glu'
 OpenGL.load_lib
 GLU.load_lib
 include OpenGL, GLU
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
 # System wide vairable settings.
 require "#{ROOT}/Konfigure.rb"
 include Konfigure # inclusion of CONSTANT settings system wide.
@@ -54,37 +54,68 @@ if FileTest.directory?(script_dir)
   end
 end
 
+#=====================================================================================================================================================
+# after ensuring all data is loaded, require the map class object.
+require "#{ROOT}/MapState.rb"
+
 
 #=====================================================================================================================================================
 # Gosu display window for the game.
 #=====================================================================================================================================================
 class Program < Gosu::Window
   include QuickControls # takes care of all the button mapping and junk...
+  @@active_state = nil  # The current update loop task to take care of, generaly closed state object loops.
+  #---------------------------------------------------------------------------------------------------------
+  #D: Create the Klass object.
   #---------------------------------------------------------------------------------------------------------
   def initialize
     super(RESOLUTION[0], RESOLUTION[1], {:update_interval => UP_MS_DRAW, :fullscreen => ISFULLSCREEN})
     $program = self   # global pointer to window creation object
     controls_init     # prep the input controls scheme manager
-    @map_objects = [] # container for map related objects.
-    # create the 3D camera viewpoint manager
-    @camera_vantage = Camera3D_Object.new({:x => CAMERASTART[0], :y => CAMERASTART[1], :z => CAMERASTART[2]})
-    #---------------------------------------------------------
-    # create some new openGL_objects on the screen
-    # 2D object, a texture basically...
-    #@map_objects << Object2D.new(:texture => "cardboard", :x => 10.0, :y => 10) 
-    options = {:filename => "CardBoardBox", :texture => "cardboard", :verbose => true}
-    @map_objects << Object3D.new(options)
-    #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")
-    #---------------------------------------------------------
-    # play with some rotation settings...
-    @map_objects[0].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
+    @@active_state = Map.new( { :level => "" } )
   end
   #---------------------------------------------------------------------------------------------------------
-  #D: Return the current camera Object used to generate the 3D openGL perspective. 
-  #D:  ' $program.grab_the_camera3d '
+  def update
+    # exit when holding esc key. kinda last resort shut down trigger.
+    if self.holding?(:cancel_action)
+      self.close!
+      return
+    end
+    #--------------------------------------
+    super # empty caller
+    input_update # updates the backend control scheme manager
+    @@active_state.update unless @@active_state.nil?
+  end
   #---------------------------------------------------------------------------------------------------------
-  def grab_the_camera3d
-    return @camera_vantage
+  def draw
+    # you can perform Gosu.draw functions out side of ' gl ' blocks.
+    # 3D objects ontop of the Gosu draws.
+    #---------------------------------------------------------
+    # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
+    gl do
+      #---------------------------------------------------------
+      # this maintains only one gl do block which prevents errors.
+      # the class it forwords the gl draw call to should incorperate
+      # a means of the 3D perspective threw a camera object or such.
+      unless @@active_state.nil?
+        @@active_state.gl_draw
+      end
+      #---------------------------------------------------------
+    end
+    # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
+    #---------------------------------------------------------
+    # Do not use gosu.draw while inside a gl operation function call! use them before or after blocks.
+    # Gosu draws ontop of the 3D objects.
+    @@active_state.draw unless @@active_state.nil?
+  end
+  #---------------------------------------------------------------------------------------------------------
+  #D: Called when the window in the OS is closed threw the system interfaces.
+  #D: https://www.rubydoc.info/github/gosu/gosu/Gosu%2FWindow:close 
+  #---------------------------------------------------------------------------------------------------------
+  def close
+    @@active_state.destroy unless @@active_state.nil?
+    super
+    self.close!
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Called when a key is depressed. ID can be an integer or an array of integers that reference input symbols.
@@ -106,66 +137,6 @@ class Program < Gosu::Window
   def button_up(id)
     super(id)
     @buttons_up << id unless @buttons_up.include?(id)
-  end
-  #---------------------------------------------------------------------------------------------------------
-  def update_input_controls
-    # exit when holding esc key.
-    if self.holding?(:cancel_action)
-      self.close!
-      return
-    end
-  end
-  #---------------------------------------------------------------------------------------------------------
-  def update
-    super # empty caller
-    input_update # updates the backend control scheme manager
-    update_input_controls
-    @camera_vantage.update # update the camera
-    # update world 3d objects:
-    @map_objects.each do |object3d|
-      object3d.update unless object3d.nil?
-    end
-  end
-  #---------------------------------------------------------------------------------------------------------
-  def draw
-    # you can perform Gosu.draw functions out side of ' gl ' blocks.
-    #---------------------------------------------------------
-    # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
-    gl do
-      # whiping screen is not the fastest way, should be internally manged better...
-      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glclear
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # clear the screen and the depth buffer
-      glLoadIdentity()
-      #---------------------------------------------------------
-      # Camera object class internally manages viewing math.
-      @camera_vantage.gl_view # you * ALWAYS * view before you draw.
-      # draw the rest of the 3D objects:
-      unless @map_objects.empty?
-        @map_objects.each do |object3d|
-          object3d.gl_draw unless object3d.nil?
-        end
-      end
-    end
-    # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
-    #---------------------------------------------------------
-    # Do not use gosu.draw while inside a gl operation function call! use them before or after blocks.
-    @camera_vantage.draw # perhaps a HUD location?
-    # objects draw to the " HUD area " as well? independent Gosu call back functions for the objects.
-    @map_objects.each do |object3d|
-      object3d.draw unless object3d.nil?
-    end
-  end
-  #---------------------------------------------------------------------------------------------------------
-  #D: Called when the window in the OS is closed threw the system interfaces.
-  #D: https://www.rubydoc.info/github/gosu/gosu/Gosu%2FWindow:close 
-  #---------------------------------------------------------------------------------------------------------
-  def close
-    super
-    @camera_vantage.destroy
-    @map_objects.each do |object3d|
-      object3d.destroy unless object3d.nil?
-    end
-    self.close!
   end
 end
 

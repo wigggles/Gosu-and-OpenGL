@@ -116,16 +116,22 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glenable
     glEnable(GL_TEXTURE_2D) # enables two-dimensional texturing to perform
     #---------------------------------------------------------
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/gldepthfunc
+    # https://www.youtube.com/watch?v=uJzXDkgm5Fw
+    glEnable(GL_DEPTH_TEST)
+    # If enabled, do depth comparisons and update the depth buffer.
+    #---------------------------------------------------------
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glmatrixmode
     glMatrixMode(GL_PROJECTION)
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glloadidentity
     glLoadIdentity  # * HAS TOO * be loaded in order after glMatrixMode setting...
+    #---------------------------------------------------------
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/gluperspective
     gluPerspective(@fov, @ratio, @near, @far)
     #---------------------------------------------------------
     # Camera placement and viewing arangements:
     # The modelview matrix is where camera object information is stored.
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity
+    glMatrixMode(GL_MODELVIEW); glLoadIdentity # same as with before matrix ^
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glulookat
     gluLookAt(@x,@y,@z,    # Camera Location          // eye
               @tx,@ty,@tz, # Viewing Target Location  // direction

@@ -21,7 +21,7 @@ module WavefrontOBJ
   class Face
     attr_accessor :vertex_count # must be >= 3
     attr_accessor :vtx_index, :nrm_index, :tex_index
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def initialize( vtx_count=3 )
       @vertex_count = vtx_count
       @vtx_index = Array.new( @vertex_count, -1 )
@@ -33,7 +33,7 @@ module WavefrontOBJ
   class Group
     attr_accessor :name, :face_index, :mtl_name, :displaylist
     attr_accessor :faces
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def initialize( name="" )
       @name         = name
       @face_index   = Array.new
@@ -41,7 +41,7 @@ module WavefrontOBJ
       @displaylist  = nil
       @faces        = Array.new # Face
     end
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def gl_draw( model )
       @face_index.each do |fidx|
         glBegin( GL_POLYGON )
@@ -63,7 +63,7 @@ module WavefrontOBJ
   class Model
     attr_reader :vertex, :normal, :texcoord, :smooth_shading, :material_lib
     attr_reader :object_name, :groups, :objects
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def initialize(options = {})
       @verbose = options[:verbose] || false
       @object_name = "Defualt" # sat by loaded file name.
@@ -78,9 +78,9 @@ module WavefrontOBJ
       @current_materials = []
       @objects = []
     end
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     #D: return the objects total face count.
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def get_face_count
       count = 0
       @groups.each_value do |grp|
@@ -88,18 +88,18 @@ module WavefrontOBJ
       end
       return count
     end
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     #D: Called from with in a ' gl do ' block after the object was properly loaded.
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def render
       @groups.each_value do |grp|
         #print("#{grp.name} ")
         glCallList( grp.displaylist ) # call precahed operation to save gpu/cpu
       end
     end
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     #D: Read a .obj file and turn the lines into data points to create the object.
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def parse( wofilename )
       wo_lines = IO.readlines( wofilename )
       @current_group = get_group( "default" )
@@ -119,9 +119,9 @@ module WavefrontOBJ
       @current_group = nil
       @current_material_name = nil
     end # parse
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     #D: Record the draw action for faster refrence in later gl_draws for the object.
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def setup
       puts("+Constructing a total of (#{@groups.keys.size}) Groups:") if @verbose
       @groups.each_value do |grp|
@@ -135,9 +135,9 @@ module WavefrontOBJ
       # display materials information
       puts("+Material Lib: \"#{material_lib}\" with (#{@current_materials.size}) Name Refrences.")  if @verbose
     end
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     #D: Returns Group object (or creates new Group when there's no matching group found)
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def get_group( name )
       if ( !@groups.has_key?( name ) )
         @groups[name] = Group.new( name )
@@ -145,9 +145,9 @@ module WavefrontOBJ
       return @groups[name]
     end
     private :get_group
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     #D: Read each line of an object file exported with 3d party software for loading into OpenGL draw methods.
-    #-------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def process_line( key, values )
       case key
       #---------------------------------------------------------
@@ -229,14 +229,15 @@ module WavefrontOBJ
       # The .mtl file may contain one or more named material definitions. 
       when "mtllib"
         # https://en.wikipedia.org/wiki/Materials_system
-        @material_lib = values.first
+        # https://en.wikipedia.org/wiki/Wavefront_.obj_file#Material_template_library
+        @material_lib =  MaterialLibrary.new(values.first)
       #---------------------------------------------------------
       # The material name matches a named material definition in an external .mtl file.
       when "usemtl"
         @current_materials << values.first
       #---------------------------------------------------------
       else
-        puts "  -Unsupported token #{key} given. Ignored."
+        puts "  -Unsupported .obj token #{key} given. Ignored."
       end
     end # process_line
     private :process_line
