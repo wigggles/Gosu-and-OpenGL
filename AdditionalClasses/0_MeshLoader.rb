@@ -45,16 +45,16 @@ module WavefrontOBJ
     def gl_draw( model )
       @face_index.each do |fidx|
         glBegin( GL_POLYGON )
-        face = @faces[fidx]
-        for i in 0...face.vertex_count do
-          vi = face.vtx_index[i]
-          ni = face.nrm_index[0] != -1 ? face.nrm_index[i] : nil
-          ti = face.tex_index[0] != -1 ? face.tex_index[i] : nil
+          face = @faces[fidx]
+          for i in 0...face.vertex_count do
+            vi = face.vtx_index[i]
+            ni = face.nrm_index[0] != -1 ? face.nrm_index[i] : nil
+            ti = face.tex_index[0] != -1 ? face.tex_index[i] : nil
 
-          glNormal3f( model.normal[ni][0], model.normal[ni][1], model.normal[ni][2] ) if ni
-          glTexCoord2f( model.texcoord[ti][0], model.texcoord[ti][1] ) if ti
-          glVertex3f( model.vertex[vi][0], model.vertex[vi][1], model.vertex[vi][2] )
-        end
+            glNormal3f( model.normal[ni][0], model.normal[ni][1], model.normal[ni][2] ) if ni
+            glTexCoord2f( model.texcoord[ti][0], model.texcoord[ti][1] ) if ti
+            glVertex3f( model.vertex[vi][0], model.vertex[vi][1], model.vertex[vi][2] )
+          end
         glEnd()
       end
     end

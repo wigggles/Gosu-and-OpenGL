@@ -28,3 +28,7 @@ https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
 https://0fps.net/2013/07/09/texture-atlases-wrapping-and-mip-mapping/
 
 https://gamedev.stackexchange.com/questions/102389/how-to-implement-index-buffer-object-ibos-with-texture-coordinates-in-opengl
+
+
+### Blender using Materials:
+https://www.youtube.com/watch?v=1q5QoyK9Rxk

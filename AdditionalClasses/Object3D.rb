@@ -6,6 +6,8 @@
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 # Don't want to make .obj files your self, check for free ones online...
 #   https://www.hongkiat.com/blog/60-excellent-free-3d-model-websites/
+#
+#   https://youtu.be/1q5QoyK9Rxk?t=56
 #=====================================================================================================================================================
 class Object3D < Basic3D_Object
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
@@ -16,7 +18,7 @@ class Object3D < Basic3D_Object
   def initialize(options = {})
     super(options)
     @obj_filename = options[:filename] || ""
-    @texture_file = options[:texture]  || "" # eventually wil tie into the load module.
+    @texture_file = options[:texture]  || @obj_filename # eventually will tie into the load module.
     #---------------------------------------------------------
     @object_name  = ''      # Is there an object name provided from .obj file or one set to this Ruby Object?
     @face_count   = 0       # how many faces the object has.
@@ -81,7 +83,9 @@ class Object3D < Basic3D_Object
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
-      glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      unless @tex_info.nil?
+        glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      end
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
       glScalef(@scale, @scale, @scale)
@@ -99,7 +103,11 @@ class Object3D < Basic3D_Object
   def load_obj_file
     use_wavefrontOBJ_loader
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
-    file = "Media/Textures/#{@texture_file}.png"
+    if @obj_filename != @texture_file
+      file = "Media/Textures/#{@texture_file}.png"
+    else # nest the object file, keeps the directory cleaner this way.
+      file = "Media/3dModels/#{@texture_file}/#{@texture_file}.png"
+    end
     file_dir = File.join(ROOT, file)
     @texture = Gosu::Image.new(file_dir, retro: true) rescue nil
     if @texture.nil?
@@ -116,7 +124,8 @@ class Object3D < Basic3D_Object
   #D: Turns out the gem for OpenGL drawing has some features tucked away in the samples.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def use_wavefrontOBJ_loader
-    file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}.obj") rescue nil
+    # nest the object file, keeps the directory cleaner this way.
+    file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}/#{@obj_filename}.obj") rescue nil
     unless FileTest.exists?(file_dir)
       puts("3dObject Load Error: Could not find 3D object source file. ( #{@obj_filename}.obj )")
       return nil

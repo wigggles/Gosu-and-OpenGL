@@ -88,8 +88,8 @@ class Program < Gosu::Window
   end
   #---------------------------------------------------------------------------------------------------------
   def draw
+    # 3D objects ontop of the Gosu draws are called here...
     # you can perform Gosu.draw functions out side of ' gl ' blocks.
-    # 3D objects ontop of the Gosu draws.
     #---------------------------------------------------------
     # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
     gl do
@@ -105,7 +105,7 @@ class Program < Gosu::Window
     # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
     #---------------------------------------------------------
     # Do not use gosu.draw while inside a gl operation function call! use them before or after blocks.
-    # Gosu draws ontop of the 3D objects.
+    # Gosu draws ontop of the 3D objects are called here...
     @@active_state.draw unless @@active_state.nil?
   end
   #---------------------------------------------------------------------------------------------------------

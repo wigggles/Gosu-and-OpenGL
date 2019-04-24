@@ -201,7 +201,7 @@ This and more information on Gosu C Headers can be found here:  https://www.libg
     key = '' # string value of input key
     shifting = self.holding?(:shift)
     @@buttons_down.each do |butt_id|
-      return '' if @input_wait > 0 and !shifting
+      return '' if @input_wait > 0 && !shifting
       butt_chr = @@table.key(butt_id).to_s
       #--------------------------------------
       # letters
