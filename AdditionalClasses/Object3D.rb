@@ -22,7 +22,7 @@ class Object3D < Basic3D_Object
     super(options)
     @obj_filename = options[:filename] || ""
     @texture_file = options[:texture]  || @obj_filename # eventually will tie into the load module.
-    @texture_debugging = TEXTURE_DEBUG || options[:debug_draw] || false # skip drawing texture, use defualt mat white.
+    @texture_debugging = TEXTURE_DEBUG || options[:debug_draw] # skip drawing texture, use defualt mat white.
     #---------------------------------------------------------
     @object_name  = ''      # Is there an object name provided from .obj file or one set to this Ruby Object?
     @face_count   = 0       # how many faces the object has.
@@ -43,6 +43,7 @@ class Object3D < Basic3D_Object
       puts("New 3D object created from: \"#{@object_name}.obj\"")
       puts("-" * 70)
     end
+    #@scale = 1.0
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Usually called from a loop to push variable changes and automate function triggers.
@@ -85,15 +86,16 @@ class Object3D < Basic3D_Object
       # glRotatef(angle, X axis scale, Y axis scale, Z axis scale)
       glRotatef(@angle[0], @angle[1], @angle[2], @angle[3])
       #---------------------------------------------------------
-      # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
-      unless @tex_info.nil? || @texture_debugging
-        glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
-      else # debug white drawing: helps find things by painting them white.
+      if @texture.nil? || @texture_debugging
+        # debug white drawing: helps find things by painting them white.
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/gldisable
         glDisable(GL_TEXTURE_2D)
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/glcolor3ub
-        glColor3ub(255, 255 ,255) # or a diffrent color if desired...
+        glColor3ub(255, 100, 100) # or a diffrent color if desired...
+      else # normal drawing
+        # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
+        glBindTexture(GL_TEXTURE_2D, @texture.tex_name)
       end
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
@@ -118,16 +120,22 @@ class Object3D < Basic3D_Object
       file = "Media/3dModels/#{@texture_file}/#{@texture_file}.png"
     end
     file_dir = File.join(ROOT, file)
-    @texture = Gosu::Image.new(file_dir, retro: true) rescue nil
-    if @texture.nil?
-      puts("Texture image file was not found for: #{@texture_file}")
+    image = Gosu::Image.new(file_dir, retro: true) rescue nil
+    if image.nil?
+      puts("Texture image file was not found for: #{file_dir}")
       exit
     end
+    @texture = Yume::Texture.new(image)
     puts("Using local 3D object file texture setting:\n  \"#{file}\"")
     #--------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
-    @tex_info = @texture.gl_tex_info # helper structure that contains image data
+    #@tex_info = @texture.gl_tex_info # helper structure that contains image data
+    #if @tex_info.nil? # 1024 x 1024 is too big
+    #  puts("Image file for Texture is too large to use:\n  #{file_dir}")
+    #  exit
+    #end
     # This vlaue is tied into the storage method of the Gosu::Image object and can not be changed.
+    #puts("#{@texture}, (#{@texture.gl_tex_info})")
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Turns out the gem for OpenGL drawing has some features tucked away in the samples.

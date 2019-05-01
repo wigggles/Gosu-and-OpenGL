@@ -17,7 +17,7 @@
 #   https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
 #=====================================================================================================================================================
 module WavefrontOBJ
-  DEBUGGING = false
+  DEBUGGING = true # prints extra info when parsing mesh file.
   #=====================================================================================================================================================
   class Face
     attr_accessor :vertex_count # must be >= 3
@@ -182,10 +182,11 @@ module WavefrontOBJ
       when "vt"
         values.collect! { |v| v.to_f }
         values = values[0..1]
-        #values.size.times do |index|
-        #  values[index] *= -1.0 # inverse Y cord in texture file?
-        #end
+        values.size.times do |index|
+          values[index] *= -1.0 # inverse Y cord in texture file?
+        end
         @texcoord.push( values ) # u and v
+        puts("Texture pos: [#{values.join(', ')}]") if DEBUGGING
       #---------------------------------------------------------
       # Named objects and polygon groups.
       when "o"
@@ -208,7 +209,7 @@ module WavefrontOBJ
         @smooth_shading = setting.include?('on') or setting.include?('true')
       #---------------------------------------------------------
       # Polygonal face element, these can be packaged in a number of ways.
-      # index is offset to start drawing at tile index 0
+      # index is offset to start drawing at tile index 0, hense minus 1
       when "f"
         vertex_count = values.length
         case values[0]
