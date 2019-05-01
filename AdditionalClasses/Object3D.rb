@@ -88,7 +88,7 @@ class Object3D < Basic3D_Object
       #---------------------------------------------------------
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
       if @texture.nil? || @texture_debugging
-        # debug white drawing: helps find things by painting them white.
+        # debug texture drawing: helps find things by painting them a color.
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/gldisable
         glDisable(GL_TEXTURE_2D)
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/glcolor3ub

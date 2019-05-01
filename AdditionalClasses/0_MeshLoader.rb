@@ -19,6 +19,8 @@
 module WavefrontOBJ
   DEBUGGING = true # prints extra info when parsing mesh file.
   #=====================================================================================================================================================
+  # A face on the surface of an .obj
+  #=====================================================================================================================================================
   class Face
     attr_accessor :vertex_count # must be >= 3
     attr_accessor :vtx_index, :nrm_index, :tex_index
@@ -30,6 +32,8 @@ module WavefrontOBJ
       @tex_index = Array.new( @vertex_count, -1 )
     end
   end
+  #=====================================================================================================================================================
+  # A group of faces with in the .obj to draw textures to.
   #=====================================================================================================================================================
   class Group
     attr_accessor :name, :face_index, :mtl_name, :displaylist
@@ -48,22 +52,23 @@ module WavefrontOBJ
     def gl_draw_list( model )
       @face_index.each do |fidx|
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
-        #glBegin( GL_TRIANGLES )
-        #glBegin( GL_QUADS )
-        glBegin( GL_POLYGON )
+        #glBegin( GL_TRIANGLES ) # triangles
+        #glBegin( GL_QUADS )     # squares
+        glBegin( GL_POLYGON )    # polygon shapes, (openGL figures it out...)
           face = @faces[fidx]
           for i in 0...face.vertex_count do
             vi = face.vtx_index[i]
             ni = face.nrm_index[0] != -1 ? face.nrm_index[i] : nil
             ti = face.tex_index[0] != -1 ? face.tex_index[i] : nil
-
+            # location:
             glNormal3f( model.normal[ni][0], model.normal[ni][1], model.normal[ni][2] ) if ni
-
+            # texture:
             if ti
-              glTexCoord2f( model.texcoord[ti][0], model.texcoord[ti][1] )
+              # Gosu has issues with inversion Y plane for texture maping.
+              glTexCoord2f( model.texcoord[ti][0], 1.0 - model.texcoord[ti][1] )
               #puts("texcords: #{model.texcoord[ti][0]} , #{model.texcoord[ti][1]}")
             end
-
+            # draw to points:
             glVertex3f( model.vertex[vi][0], model.vertex[vi][1], model.vertex[vi][2] )
           end
         glEnd()
@@ -120,7 +125,8 @@ module WavefrontOBJ
       wo_lines.each do |line|
         tokens = line.split
         # make sense of the object tokens
-        process_line(tokens[0], tokens[1..tokens.length-1])
+        string = line.sub("\r", "")
+        process_line(tokens[0], tokens[1..tokens.length-1], string.sub("\n", ""))
       end
       @object_name = wofilename.split('/').last
       @object_name.sub!(".obj", '')
@@ -162,7 +168,7 @@ module WavefrontOBJ
     #D: Read each line of an object file exported with 3d party software for loading into OpenGL draw methods.
     #D: https://en.wikipedia.org/wiki/Wavefront_.obj_file
     #---------------------------------------------------------------------------------------------------------
-    def process_line( key, values )
+    def process_line( key, values, line_string)
       case key
       #---------------------------------------------------------
       # List of geometric vertices, with (x, y, z [,w]) coordinates, 
@@ -182,11 +188,11 @@ module WavefrontOBJ
       when "vt"
         values.collect! { |v| v.to_f }
         values = values[0..1]
-        values.size.times do |index|
-          values[index] *= -1.0 # inverse Y cord in texture file?
-        end
+        #values.size.times do |index|
+        #  values[index] *= -1.0 # inverse Y cord in texture file?
+        #end
         @texcoord.push( values ) # u and v
-        puts("Texture pos: [#{values.join(', ')}]") if DEBUGGING
+        puts("Texture pos: [#{values.join(', ')}] From: \'#{line_string}\'") if DEBUGGING
       #---------------------------------------------------------
       # Named objects and polygon groups.
       when "o"
