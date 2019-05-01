@@ -32,9 +32,11 @@ class MaterialLibrary
   def parse_mtl_file
     # check to make sure the file exists.
     unless @filename.include?('.mtl')
-      @filename += '.mtl'
+      filename = @filename + '.mtl'
+    else
+      filename = @filename
     end
-    file_dir = File.join(ROOT, "Media/Materials/#{@filename}") rescue nil
+    file_dir = File.join(ROOT, "Media/Materials/#{filename}") rescue nil
     unless FileTest.exists?(file_dir)
       puts("Material Load Error: Could not find source file.\n ( #{file_dir})")
       return nil
