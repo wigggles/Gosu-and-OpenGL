@@ -10,6 +10,8 @@ class Map
   #D:  Create the Klass object.
   #---------------------------------------------------------------------------------------------------------
   def initialize(**options)
+    create_background()
+    # store the options data for later refrence.
     @map_file = options[:level] || ""
     @map_objects = [] # container for map related objects.
     # create the 3D camera viewpoint manager
@@ -22,10 +24,33 @@ class Map
     #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")
     #
     #@map_objects << Object3D.new({ :filename => "test_cube", :verbose => true })
-    @map_objects << Object3D.new({ :filename => "car", :verbose => true })
+    @map_objects << Object3D.new({ :filename => "car", :verbose => true, :debug_draw => false })
     #---------------------------------------------------------
     # play with some rotation settings...
     @map_objects[0].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
+  end
+  #---------------------------------------------------------------------------------------------------------
+  #D: Prep the background/foreground drawn objects.
+  #---------------------------------------------------------------------------------------------------------
+  def create_background
+    # OpenGL sometimes uses colors in float values, this converts a hex into such color arrays.
+    @bg_c = 0xFF_00ff00   # starts as a hex value, gets converted for OpenGL usage.
+    # convert background color into color float:
+    # [red, green, blue, alpha] = 0xalpha_redgreenblue
+    colors = @bg_c.to_s(16)      # turn int into hex string
+    colors = colors.scan(/.{2}/) # split hex string by color segments
+    i = 0 # turn the provided hex color into an int value array
+    @bg_c = [] # convert color value variable into storage object for ranges.
+    colors.each do |color|
+      # ranges 0.0 <-> 1.0
+      if i > 0 # is red green or blue value
+        color_range = color.to_i(16) / 255.to_f
+        @bg_c.push(color_range)
+      end
+      i += 1
+    end
+    # add alpha to end: [1.0, 1.0, 1.0, 0.0]  ==  0x00_ffffff
+    @bg_c.push(colors.first.to_i(16) / 255.to_f)
   end
   #---------------------------------------------------------------------------------------------------------
   #D: 
@@ -51,6 +76,11 @@ class Map
   #D: 
   #---------------------------------------------------------------------------------------------------------
   def gl_draw
+    # background in Gl render:
+    # https://docs.microsoft.com/en-us/windows/desktop/opengl/glclearcolor
+    # [ red, green, blue, alpha ] 0.0 <-> 1.0
+    glClearColor(@bg_c[0], @bg_c[1], @bg_c[2], @bg_c[3])
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     # Camera object class internally manages viewing math.
     @@camera_vantage.gl_view
     # Draw the rest of the map objects.

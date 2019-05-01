@@ -12,6 +12,7 @@
 #   https://youtu.be/eiDrRa6JvQ0?t=773  - UV mapping
 #=====================================================================================================================================================
 class Object3D < Basic3D_Object
+  TEXTURE_DEBUG = false
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Creates Kernal class Object. (Klass)
@@ -21,6 +22,7 @@ class Object3D < Basic3D_Object
     super(options)
     @obj_filename = options[:filename] || ""
     @texture_file = options[:texture]  || @obj_filename # eventually will tie into the load module.
+    @texture_debugging = TEXTURE_DEBUG || options[:debug_draw] || false # skip drawing texture, use defualt mat white.
     #---------------------------------------------------------
     @object_name  = ''      # Is there an object name provided from .obj file or one set to this Ruby Object?
     @face_count   = 0       # how many faces the object has.
@@ -85,8 +87,13 @@ class Object3D < Basic3D_Object
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
       # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/GLTexInfo
-      unless @tex_info.nil?
+      unless @tex_info.nil? || @texture_debugging
         glBindTexture(GL_TEXTURE_2D, @tex_info.tex_name)
+      else # debug white drawing: helps find things by painting them white.
+        # https://docs.microsoft.com/en-us/windows/desktop/opengl/gldisable
+        glDisable(GL_TEXTURE_2D)
+        # https://docs.microsoft.com/en-us/windows/desktop/opengl/glcolor3ub
+        glColor3ub(255, 255 ,255) # or a diffrent color if desired...
       end
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef

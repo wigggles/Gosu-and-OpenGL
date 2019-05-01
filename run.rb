@@ -88,6 +88,14 @@ class Program < Gosu::Window
   end
   #---------------------------------------------------------------------------------------------------------
   def draw
+    # You can't draw here, you can only draw after as the open GL draw writes over
+    # the screen buffer.
+    # http://ruby-doc.org/docs/keywords/1.9/Object.html#defined-3F-method
+    #unless @@active_state.nil?
+    #  if defined? @@active_state.draw_early
+    #    @@active_state.draw_early
+    #  end
+    #end
     # 3D objects ontop of the Gosu draws are called here...
     # you can perform Gosu.draw functions out side of ' gl ' blocks.
     #---------------------------------------------------------
@@ -105,7 +113,7 @@ class Program < Gosu::Window
     # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
     #---------------------------------------------------------
     # Do not use gosu.draw while inside a gl operation function call! use them before or after blocks.
-    # Gosu draws ontop of the 3D objects are called here...
+    # Gosu draws ontop of the 3D objects are called here... You can not draw under openGL blocks only ontop.
     @@active_state.draw unless @@active_state.nil?
   end
   #---------------------------------------------------------------------------------------------------------

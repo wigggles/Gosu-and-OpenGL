@@ -57,7 +57,12 @@ module WavefrontOBJ
             ti = face.tex_index[0] != -1 ? face.tex_index[i] : nil
 
             glNormal3f( model.normal[ni][0], model.normal[ni][1], model.normal[ni][2] ) if ni
-            glTexCoord2f( model.texcoord[ti][0], model.texcoord[ti][1] ) if ti
+
+            if ti
+              glTexCoord2f( model.texcoord[ti][0], model.texcoord[ti][1] )
+              #puts("texcords: #{model.texcoord[ti][0]} , #{model.texcoord[ti][1]}")
+            end
+
             glVertex3f( model.vertex[vi][0], model.vertex[vi][1], model.vertex[vi][2] )
           end
         glEnd()
@@ -173,7 +178,11 @@ module WavefrontOBJ
       # will vary between 0 and 1, v and w are optional and default to 0.
       when "vt"
         values.collect! { |v| v.to_f }
-        @texcoord.push( values[0..1] ) # u and v
+        values = values[0..1]
+        #values.size.times do |index|
+        #  values[index] -= 1.0 # inverse Y cord in texture file?
+        #end
+        @texcoord.push( values ) # u and v
       #---------------------------------------------------------
       # Named objects and polygon groups.
       when "o"
