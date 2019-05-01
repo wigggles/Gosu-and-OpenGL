@@ -42,8 +42,13 @@ module WavefrontOBJ
       @faces        = Array.new # Face
     end
     #---------------------------------------------------------------------------------------------------------
-    def gl_draw( model )
+    #D: Return a cached rendering of the object loaded for later drawing usage.
+    #---------------------------------------------------------------------------------------------------------
+    def gl_draw_list( model )
       @face_index.each do |fidx|
+        # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
+        #glBegin( GL_TRIANGLES )
+        #glBegin( GL_QUADS )
         glBegin( GL_POLYGON )
           face = @faces[fidx]
           for i in 0...face.vertex_count do
@@ -128,7 +133,7 @@ module WavefrontOBJ
         grp.displaylist = glGenLists( 1 )
         glNewList(grp.displaylist, GL_COMPILE )
         puts(" * \"#{grp.name}\" : Faces(#{grp.faces.size}) openGL draw list cached.") if @verbose
-        grp.gl_draw(self) # create precahced draw operation
+        grp.gl_draw_list(self) # create precahced draw operation
         glEndList()
       end
       puts("+Total Count of Faces: [ #{self.get_face_count} ]") if @verbose
@@ -147,18 +152,25 @@ module WavefrontOBJ
     private :get_group
     #---------------------------------------------------------------------------------------------------------
     #D: Read each line of an object file exported with 3d party software for loading into OpenGL draw methods.
+    #D: https://en.wikipedia.org/wiki/Wavefront_.obj_file
     #---------------------------------------------------------------------------------------------------------
     def process_line( key, values )
       case key
       #---------------------------------------------------------
+      # List of geometric vertices, with (x, y, z [,w]) coordinates, 
+      # w is optional and defaults to 1.0.
       when "v"
         values.collect! { |v| v.to_f }
         @vertex.push( values )
       #---------------------------------------------------------
+      # List of vertex normals in (x,y,z) form; normals might not be unit vectors.
+      # https://en.wikipedia.org/wiki/Normal_(geometry)
       when "vn"
         values.collect! { |v| v.to_f }
         @normal.push( values )
       #---------------------------------------------------------
+      # List of texture coordinates, in (u, [v ,w]) coordinates, these 
+      # will vary between 0 and 1, v and w are optional and default to 0.
       when "vt"
         values.collect! { |v| v.to_f }
         @texcoord.push( values[0..1] ) # u and v
@@ -183,6 +195,7 @@ module WavefrontOBJ
         setting = values.first # convert into boolean
         @smooth_shading = setting.include?('on') or setting.include?('true')
       #---------------------------------------------------------
+      # Polygonal face element
       when "f"
         vertex_count = values.length
         case values[0]

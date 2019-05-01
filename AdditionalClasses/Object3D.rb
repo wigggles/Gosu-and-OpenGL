@@ -7,7 +7,9 @@
 # Don't want to make .obj files your self, check for free ones online...
 #   https://www.hongkiat.com/blog/60-excellent-free-3d-model-websites/
 #
-#   https://youtu.be/1q5QoyK9Rxk?t=56
+# Blender Tuts:
+#   https://youtu.be/1q5QoyK9Rxk?t=56   - Materials Application
+#   https://youtu.be/eiDrRa6JvQ0?t=773  - UV mapping
 #=====================================================================================================================================================
 class Object3D < Basic3D_Object
   DEBUG_PRINT_WAIT = 20 # time between terminal information dumps, set nil to disable print out.
