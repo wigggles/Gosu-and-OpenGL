@@ -17,7 +17,7 @@
 #   https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
 #=====================================================================================================================================================
 module WavefrontOBJ
-  DEBUGGING = true # prints extra info when parsing mesh file.
+  DEBUGGING = false # prints extra info when parsing mesh file.
   #=====================================================================================================================================================
   # A face on the surface of an .obj
   #=====================================================================================================================================================
@@ -52,26 +52,28 @@ module WavefrontOBJ
     def gl_draw_list( model )
       @face_index.each do |fidx|
         # https://docs.microsoft.com/en-us/windows/desktop/opengl/glbegin
+        # What do the faces look like?
         #glBegin( GL_TRIANGLES ) # triangles
         #glBegin( GL_QUADS )     # squares
         glBegin( GL_POLYGON )    # polygon shapes, (openGL figures it out...)
           face = @faces[fidx]
+          # draw each texture face on the object mesh.
           for i in 0...face.vertex_count do
+            # prep tri/quad/poly face section drawing vars
             vi = face.vtx_index[i]
             ni = face.nrm_index[0] != -1 ? face.nrm_index[i] : nil
             ti = face.tex_index[0] != -1 ? face.tex_index[i] : nil
-            # location:
+            # vertext plane start location:
             glNormal3f( model.normal[ni][0], model.normal[ni][1], model.normal[ni][2] ) if ni
-            # texture:
-            if ti
+            if ti # if has texture.
               # Gosu has issues with inversion Y plane for texture maping.
-              glTexCoord2f( model.texcoord[ti][0], 1.0 - model.texcoord[ti][1] )
               # for this we offset the text cord by bottom of image reading down instead of up.
               # OpenGL textures are read from the bottomRight of the image to the TopLeft.
               # Gosu loads images into IO stream TopLeft and would end up being read Upside down.
               # Hense a subtraction from fload 1.0 for text cord. - BestGuiGui
+              glTexCoord2f( model.texcoord[ti][0], 1.0 - model.texcoord[ti][1] )
             end
-            # draw to points:
+            # plane texture corners to vertex points:
             glVertex3f( model.vertex[vi][0], model.vertex[vi][1], model.vertex[vi][2] )
           end
         glEnd()
@@ -79,23 +81,31 @@ module WavefrontOBJ
     end
   end
   #=====================================================================================================================================================
+  # The container that holds all the model mesh.obj file data together for openGL drawing.
+  #=====================================================================================================================================================
   class Model
     attr_reader :vertex, :normal, :texcoord, :smooth_shading, :material_lib
     attr_reader :object_name, :groups, :objects
     #---------------------------------------------------------------------------------------------------------
-    def initialize(options = {})
+    def initialize(**options)
       @verbose = options[:verbose] || false
-      @object_name = "Defualt" # sat by loaded file name.
-
+      @object_name = options[:object_name] || "Defualt" # sat by loaded file name.
+      @file_dir = File.join(ROOT, "Media/3dModels/#{@object_name}/#{@object_name}.obj") rescue nil
+      unless FileTest.exists?(@file_dir)
+        puts("Mesh Loader Error: Could not find 3D object (#{@object_name}) source file.\n  #{@file_dir}")
+        return nil
+      end
+      # file information containers
       @vertex    = Array.new
       @normal    = Array.new
       @texcoord  = Array.new
       @groups    = Hash.new   # face Groups
-
-      @smooth_shading    = false
+      # other flaggin found in file:
+      @smooth_shading    = false # can be groups as well
       @material_lib      = ""
       @current_materials = []
       @objects = []
+      return true # success
     end
     #---------------------------------------------------------------------------------------------------------
     #D: return the objects total face count.
@@ -119,11 +129,11 @@ module WavefrontOBJ
     #---------------------------------------------------------------------------------------------------------
     #D: Read a .obj file and turn the lines into data points to create the object.
     #---------------------------------------------------------------------------------------------------------
-    def parse( wofilename )
-      wo_lines = IO.readlines( wofilename )
+    def parse
+      wo_lines = IO.readlines( @file_dir )
       @current_group = get_group( "default" )
       @current_material_name = "default"
-      puts("+Loading .obj file:\n  \"#{wofilename.sub(ROOT, '')}\"") if @verbose
+      puts("+Loading .obj file:\n  \"#{@file_dir.sub(ROOT, '')}\"") if @verbose
       # parse file context
       wo_lines.each do |line|
         tokens = line.split
@@ -131,7 +141,7 @@ module WavefrontOBJ
         string = line.sub("\r", "")
         process_line(tokens[0], tokens[1..tokens.length-1], string.sub("\n", ""))
       end
-      @object_name = wofilename.split('/').last
+      @object_name = @file_dir.split('/').last
       @object_name.sub!(".obj", '')
       # verbose status updates
       puts("+Object name is \"#{@object_name}\" with (#{@objects.size}) Internal Objects.") if @verbose
@@ -145,6 +155,7 @@ module WavefrontOBJ
     #D: Record the draw action for faster refrence in later gl_draws for the object.
     #---------------------------------------------------------------------------------------------------------
     def setup
+      self.parse() # load file
       puts("+Constructing a total of (#{@groups.keys.size}) Groups:") if @verbose
       @groups.each_value do |grp|
         grp.displaylist = glGenLists( 1 )

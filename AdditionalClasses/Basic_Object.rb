@@ -6,6 +6,7 @@
 #=====================================================================================================================================================
 class Basic3D_Object
   attr_accessor :x, :y, :z, :scale, :angle, :verbose
+  attr_reader :destoryed
   #---------------------------------------------------------------------------------------------------------
   def initialize(options = {})
     options = {} if options.nil?
@@ -16,6 +17,7 @@ class Basic3D_Object
     @scale = options[:scale] || 1.0 
     # spit out addional information to terminal when running.
     @verbose = options[:verbose] || false 
+    @destoryed = false
     #---------------------------------------------------------
     reset_rotation_axis
   end
@@ -23,6 +25,7 @@ class Basic3D_Object
   #D: Perform common actions, angular object rotation perhaps?
   #---------------------------------------------------------------------------------------------------------
   def update
+    return if @destoryed
     # current plus speed
     @angle[0] += @angle.last
   end
@@ -58,5 +61,11 @@ class Basic3D_Object
     end
     #---------------------------------------------------------
     @angle << speed # last index is always speed.
+  end
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  #D: Called when its time to release the object to GC.
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  def destroy
+    @destoryed = true
   end
 end 

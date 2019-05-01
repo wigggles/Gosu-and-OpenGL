@@ -21,7 +21,7 @@ class Map
     # 2D object, a texture basically...
     #@map_objects << Object2D.new(:texture => "cardboard", :x => 0.0, :y => 0.0)
     # 3D object, can apply a texture to a .obj mesh file.
-    #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")
+    @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")
     #
     #@map_objects << Object3D.new({ :filename => "test_cube", :verbose => true })
     @map_objects << Object3D.new({ :filename => "car", :verbose => true, :debug_draw => false })

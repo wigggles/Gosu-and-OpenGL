@@ -32,13 +32,21 @@ class Object3D < Basic3D_Object
     @time_between_debug_prints = 0
     @hud_font = Gosu::Font.new(22) # Gosu::Font container
     @string   = "" # container for HUD information
-    #---------------------------------------------------------
-    # begin interprating the 3D .obj file.
-    if @verbose
+    # try loading a source .obj file
+    success = load_obj_file() rescue nil
+    if success.nil?
+      # there was an issue that was reported that resulted in a fail loading.
+      puts("issue with object loading (#{@obj_filename})")
       puts("-" * 70)
-      puts("Initializing new OpenGL 3D object... #{self}")
+      self.destroy # mark for map clean up/ removal
+      return nil
+    else
+      if @verbose
+        puts("-" * 70)
+        puts("Initializing new OpenGL 3D object... #{self}")
+      end
     end
-    load_obj_file # try loading a source .obj file
+    # speak if asked.
     if @verbose
       puts("New 3D object created from: \"#{@object_name}.obj\"")
       puts("-" * 70)
@@ -49,6 +57,7 @@ class Object3D < Basic3D_Object
   #D: Usually called from a loop to push variable changes and automate function triggers.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def update
+    return if @destoryed
     super
     #---------------------------------------------------------
     # debug information:
@@ -65,6 +74,7 @@ class Object3D < Basic3D_Object
   #D: Called from $program Gosu::Window inside the draw method que. This is called after the interjection of gl_draw function.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def draw
+    return if @destoryed
     unless DEBUG_PRINT_WAIT.nil?
       @string = get_debug_string
     end
@@ -76,6 +86,7 @@ class Object3D < Basic3D_Object
   #D: https://docs.microsoft.com/en-us/windows/desktop/opengl/glprioritizetextures
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def gl_draw
+    return if @destoryed # map will take care of the class object.
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpushmatrix
     glPushMatrix # for the most part operations should keep to themselfs with location configuration.
       #---------------------------------------------------------
@@ -102,7 +113,12 @@ class Object3D < Basic3D_Object
       glScalef(@scale, @scale, @scale)
       #---------------------------------------------------------
       # call the cached draw recording for the model.
-      @object_model.render
+      unless @object_model.nil?
+        @object_model.render
+      else
+        puts("No model to draw for object: [ #{@obj_filename} ]")
+        exit
+      end
       #---------------------------------------------------------
     # https://docs.microsoft.com/en-us/windows/desktop/opengl/glpopmatrix
     glPopMatrix
@@ -112,7 +128,10 @@ class Object3D < Basic3D_Object
   #D: https://help.sansar.com/hc/en-us/articles/115002888226-3D-model-export-and-setup-tips-using-popular-3D-tools-
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def load_obj_file
-    use_wavefrontOBJ_loader
+    if self.use_wavefrontOBJ_loader() == nil
+      # there was an issue loading the object data, dont bother with the image file.
+      return nil
+    end
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
     if @obj_filename != @texture_file
       file = "Media/Textures/#{@texture_file}.png"
@@ -129,31 +148,33 @@ class Object3D < Basic3D_Object
     puts("Using local 3D object file texture setting:\n  \"#{file}\"")
     #--------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
-    #@tex_info = @texture.gl_tex_info # helper structure that contains image data
-    #if @tex_info.nil? # 1024 x 1024 is too big
-    #  puts("Image file for Texture is too large to use:\n  #{file_dir}")
-    #  exit
-    #end
-    # This vlaue is tied into the storage method of the Gosu::Image object and can not be changed.
-    #puts("#{@texture}, (#{@texture.gl_tex_info})")
+    # @tex_info = @texture.gl_tex_info # helper structure that contains image data
+    # not very reliably held to tho, needs a proper class object formater to load images as textures.
+    return true # success
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Turns out the gem for OpenGL drawing has some features tucked away in the samples.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def use_wavefrontOBJ_loader
     # nest the object file, keeps the directory cleaner this way.
-    file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}/#{@obj_filename}.obj") rescue nil
-    unless FileTest.exists?(file_dir)
-      puts("3dObject Load Error: Could not find 3D object source file. ( #{@obj_filename}.obj )")
+    @file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}/#{@obj_filename}.obj") rescue nil
+    unless FileTest.exists?(@file_dir)
+      puts("Mesh Loader Error: Could not find 3D object (#{@obj_filename}) source file.\n  #{@file_dir}")
+      #throw Error.new() 
+      #exit
       return nil
     end
     #---------------------------------------------------------
     # module that manages loading of 3d objects.
-    options = {:verbose => @verbose}
-    @object_model = WavefrontOBJ::Model.new(options)
+    options = {:object_name => @obj_filename, :verbose => @verbose}
+    @object_model = WavefrontOBJ::Model.new(options) rescue nil
+    if @object_model.nil?
+      puts("Failed to load model data for: (#{@obj_filename})")
+      self.destroy # mark self for clean up from object container in map
+      return nil
+    end
     # seperated to allow for load steping for larger object groups...
-    @object_model.parse(file_dir)           # load file
-    @object_model.setup                     # create draw recording array
+    @object_model.setup() # create draw recording array
     # confirm creaion, get some details about the object.
     @object_name = @object_model.object_name
     @face_count  = @object_model.get_face_count
@@ -162,7 +183,7 @@ class Object3D < Basic3D_Object
   #D: Called when its time to release the object to GC.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def destroy
-
+    super
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Debug tool to print out information about the object.
