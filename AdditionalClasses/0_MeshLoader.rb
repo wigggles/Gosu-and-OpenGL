@@ -118,10 +118,12 @@ module WavefrontOBJ
       # parse file context
       wo_lines.each do |line|
         tokens = line.split
+        # make sense of the object tokens
         process_line(tokens[0], tokens[1..tokens.length-1])
       end
       @object_name = wofilename.split('/').last
       @object_name.sub!(".obj", '')
+      # verbose status updates
       puts("+Object name is \"#{@object_name}\" with (#{@objects.size}) Internal Objects.") if @verbose
       if get_group("default").faces.empty?
         @groups.delete("default")
@@ -210,12 +212,15 @@ module WavefrontOBJ
         case values[0]
         when /\d+\/\d+\/\d+/ # v/vt/vn
           face = Face.new( vertex_count )
+          print("Face: ")
           values.each_with_index do |value, i|
             v, vt, vn = value.split( '/' )
             face.vtx_index[i] = v.to_i  - 1
             face.tex_index[i] = vt.to_i - 1
             face.nrm_index[i] = vn.to_i - 1
+            print("[#{face.vtx_index[i]}, #{face.tex_index[i]}, #{face.nrm_index[i]}] ")
           end
+          puts("")
         #       --------------------------------------
         when /\d+\/\/\d+/ # v//vn
           face = Face.new( vertex_count )
