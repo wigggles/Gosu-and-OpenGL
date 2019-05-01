@@ -66,7 +66,10 @@ module WavefrontOBJ
             if ti
               # Gosu has issues with inversion Y plane for texture maping.
               glTexCoord2f( model.texcoord[ti][0], 1.0 - model.texcoord[ti][1] )
-              #puts("texcords: #{model.texcoord[ti][0]} , #{model.texcoord[ti][1]}")
+              # for this we offset the text cord by bottom of image reading down instead of up.
+              # OpenGL textures are read from the bottomRight of the image to the TopLeft.
+              # Gosu loads images into IO stream TopLeft and would end up being read Upside down.
+              # Hense a subtraction from fload 1.0 for text cord. - BestGuiGui
             end
             # draw to points:
             glVertex3f( model.vertex[vi][0], model.vertex[vi][1], model.vertex[vi][2] )
