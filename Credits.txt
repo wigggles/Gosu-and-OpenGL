@@ -11,6 +11,7 @@ With much help from:
   to help put this sample together. With out the information that was provided
   on integrating into Gosu::Window this smaple could not have been created. They
   also provied some excellent images to convey the drawing of objects.
+   + Also the Car.obj and graphic.
   
 *    Maskendoktor (414891775795265538)
   For Gosu, Join the discord:   https://discord.gg/5nEBXDc
