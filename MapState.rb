@@ -20,14 +20,16 @@ class Map
     #---------------------------------------------------------
     # create some new openGL_objects on the screen
     # 2D object, a texture basically...
-    #@map_objects << Object2D.new(:texture => "cardboard", :x => 0.0, :y => 0.0)
+    @map_objects << Object2D.new(:texture => "cardboard", :x => 0.0, :y => 0.0)
     # 3D object, can apply a texture to a .obj mesh file.
-    @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard") # fails, but reports
-    # other tests:
     @map_objects << Object3D.new({ :filename => "test_cube", :verbose => false })
     @map_objects << Object3D.new({ :filename => "car", :verbose => true, :debug_draw => false })
+    
+    # the bellow object load fails, but reports the issue and cleans up.
+    @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard") 
     #---------------------------------------------------------
     # play with some rotation settings...
+    @map_objects[0].set_axis_rotation({:speed => 0.7, :axis => 'YZX', :force => 1.0})
     @map_objects[1].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
   end
   #---------------------------------------------------------------------------------------------------------
