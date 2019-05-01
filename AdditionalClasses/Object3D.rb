@@ -75,6 +75,7 @@ class Object3D < Basic3D_Object
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def draw
     return if @destoryed
+    return unless @verbose
     unless DEBUG_PRINT_WAIT.nil?
       @string = get_debug_string
     end

@@ -24,11 +24,11 @@ class Map
     # 3D object, can apply a texture to a .obj mesh file.
     @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard") # fails, but reports
     # other tests:
-    @map_objects << Object3D.new({ :filename => "test_cube", :verbose => true })
+    @map_objects << Object3D.new({ :filename => "test_cube", :verbose => false })
     @map_objects << Object3D.new({ :filename => "car", :verbose => true, :debug_draw => false })
     #---------------------------------------------------------
     # play with some rotation settings...
-    @map_objects[0].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
+    @map_objects[1].set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Prep the background/foreground drawn objects.
