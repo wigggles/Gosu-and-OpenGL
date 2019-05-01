@@ -24,16 +24,17 @@ class Map
     @map_objects.last.set_axis_rotation({:speed => 0.7, :axis => 'YZX', :force => 1.0})
     # 3D object, can apply a texture to a .obj mesh file.
     #    ------------------
+    # This cube can be the starting of representation of space.
     @map_objects << Object3D.new({ :filename => "test_cube", :verbose => false })
-    @map_objects.last.set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
+    #@map_objects.last.set_axis_rotation({:speed => 0.5, :axis => 'XZ', :force => 1.0})
     #    ------------------
-    @map_objects << Object3D.new({ :filename => "car", :texture => "car-hires", :verbose => true, :debug_draw => false })
-    @map_objects.last.set_axis_rotation({:speed => -0.8, :axis => 'YXZ', :force => 1.5})
+    #@map_objects << Object3D.new({ :filename => "car", :texture => "car-hires", :verbose => false, :debug_draw => false })
+    #@map_objects.last.set_axis_rotation({:speed => -0.8, :axis => 'YXZ', :force => 1.5})
     #    ------------------
     # Chair provided by: https://free3d.com/3d-model/chair-16205.html
     # Free personal use liciense, can not sell if you include this model. Check link.
-    #@map_objects << Object3D.new({ :filename => "chair",:texture => "Tests/test_04", :verbose => true, :debug_draw => false })
-    #@map_objects.last.set_axis_rotation({:speed => -0.8, :axis => 'YXZ', :force => 1.5})
+    @map_objects << Object3D.new({ :filename => "chair",:texture => "Tests/test_00", :verbose => true, :debug_draw => false })
+    @map_objects.last.set_axis_rotation({:speed => -0.8, :axis => 'YXZ', :force => 1.5})
     #    ------------------
     # the bellow object load fails, but reports the issue and cleans up.
     #@map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard") 

@@ -79,7 +79,7 @@ class Object3D < Basic3D_Object
     unless DEBUG_PRINT_WAIT.nil?
       @string = get_debug_string
     end
-    @hud_font.draw_text(@string, $program.width - 200, $program.height - 300, 100, 1, 1, 0xff_ffffff, :default)
+    @hud_font.draw_text(@string, $program.width - 200, $program.height - 300, 100, 1, 1, 0xff_000000, :default)
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Called from $program Gosu::Window inside draw, this happens before any Gosu::Font or Gosu::Image actions

@@ -40,7 +40,7 @@ module Konfigure
     # common controls
     :move_left    => [:left , :let_a, :gp_left],
     :move_right   => [:right, :let_d, :gp_right],
-    :move_crouch  => [:lctrl],
+    :move_crouch  => [:let_c],
     :move_jump    => [:space],
     #--------------------------------------
     # Standards
@@ -54,7 +54,10 @@ module Konfigure
     :debug_action_two => [:return],
     #--------------------------------------
     # can not be used in above mapping, use both shifts individually.
-    :shift => [:lshift, :rshift] # this is for keyboard character input modes only.
+    # these are for keyboard character input modes only.
+    :shift => [:lshift, :rshift], 
+    :ctrl  => [:lctrl, :rctrl],
+    :alt   => [:lalt, :ralt]
    }
   #---------------------------------------------------------------------------------------------------------
 end

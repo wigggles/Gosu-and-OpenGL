@@ -55,25 +55,34 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
   #D: Refer to image: ' Media/Screen_Shots/origin_explained.png '
   #---------------------------------------------------------------------------------------------------------
   def input_update_movement_controls
+    if $program.holding?(:alt)
+      speed = @speed / 2.0
+    elsif $program.holding?(:shift) && $program.holding?(:ctrl)
+      speed = @speed * 10
+    elsif $program.holding?(:shift) || $program.holding?(:ctrl)
+      speed = @speed * 4
+    else
+      speed = @speed
+    end
     #--------------------------------------
     # Left Right X axis, Camera Position
     if    $program.holding?(:move_left)
-      @z -= @speed
+      @z -= speed
     elsif $program.holding?(:move_right)
-      @z += @speed
+      @z += speed
     #--------------------------------------
     # Up Down Y axis, Camera Position
     elsif $program.holding?(:move_up)
-      @x -= @speed
+      @x -= speed
     elsif $program.holding?(:move_down)
-      @x += @speed
+      @x += speed
     #--------------------------------------
     # Vertical Hight change, Camera Position
     # more of a 'turn' then a straif type movment...
     elsif $program.holding?(:move_jump)
-      @y -= @speed
+      @y -= speed
     elsif $program.holding?(:move_crouch)
-      @y += @speed
+      @y += speed
     #--------------------------------------
     end
   end
@@ -106,7 +115,7 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     unless DEBUG_PRINT_WAIT.nil?
       @string = get_debug_string
     end
-    @hud_font.draw_text(@string, 16, 16, 100, 1, 1, 0xff_ffffff, :default)
+    @hud_font.draw_text(@string, 16, 16, 100, 1, 1, 0xff_000000, :default)
   end
   #---------------------------------------------------------------------------------------------------------
   #D: Below POV is established and used to create the rendering of objects threw OpenGL.
