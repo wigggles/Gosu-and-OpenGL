@@ -51,7 +51,7 @@ class Object3D < Basic3D_Object
       puts("New 3D object created from: \"#{@object_name}.obj\"")
       puts("-" * 70)
     end
-    #@scale = 1.0
+    #@scale = 1.0 # scale the whole object.
   end
   #-------------------------------------------------------------------------------------------------------------------------------------------
   #D: Usually called from a loop to push variable changes and automate function triggers.
@@ -111,6 +111,7 @@ class Object3D < Basic3D_Object
       end
       #---------------------------------------------------------
       # https://docs.microsoft.com/en-us/windows/desktop/opengl/glscalef
+      # scales the whole object including texture mapping.
       glScalef(@scale, @scale, @scale)
       #---------------------------------------------------------
       # call the cached draw recording for the model.
@@ -143,7 +144,11 @@ class Object3D < Basic3D_Object
     image = Gosu::Image.new(file_dir, retro: true) rescue nil
     if image.nil?
       puts("Texture image file was not found for: #{file_dir}")
-      exit
+      unless TEXTURE_DEBUG
+        exit
+      else
+        return true
+      end
     end
     @texture = Yume::Texture.new(image)
     puts("Using local 3D object file texture setting:\n  \"#{file}\"")
