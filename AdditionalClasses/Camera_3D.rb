@@ -156,7 +156,8 @@ class Camera3D_Object < Basic3D_Object # @x, @y, @z are managed from a super cla
     s =  "3D Camera: [ #{@x.round(2)}, #{@y.round(2)}, #{@z.round(2)} ]\n"
     s += "  T[ #{@tx.round(2)}, #{@ty.round(2)}, #{@tz.round(2)} ]\n"
     s += "Fov: #{@fov.round(2)} View: #{@near.round(2)} -> #{@far.round(2)}\n\t"
-    s += "Gosu::Window FPS (#{Gosu.fps})"
+    s += "Gosu::Window FPS (#{Gosu.fps})\n\t"
+    s += "Map Objects: (#{$program.active_state.map_objects.size})"
     return s
   end
 end

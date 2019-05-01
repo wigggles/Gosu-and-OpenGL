@@ -75,6 +75,10 @@ class Program < Gosu::Window
     @@active_state = Map.new( { :level => "" } )
   end
   #---------------------------------------------------------------------------------------------------------
+  def active_state
+    return @@active_state
+  end
+  #---------------------------------------------------------------------------------------------------------
   def update
     # exit when holding esc key. kinda last resort shut down trigger.
     if self.holding?(:cancel_action)

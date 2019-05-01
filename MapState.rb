@@ -6,6 +6,7 @@
 #=====================================================================================================================================================
 class Map
   @@camera_vantage = nil
+  attr_accessor :map_objects
   #---------------------------------------------------------------------------------------------------------
   #D:  Create the Klass object.
   #---------------------------------------------------------------------------------------------------------
@@ -21,9 +22,9 @@ class Map
     # 2D object, a texture basically...
     #@map_objects << Object2D.new(:texture => "cardboard", :x => 0.0, :y => 0.0)
     # 3D object, can apply a texture to a .obj mesh file.
-    @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard")
-    #
-    #@map_objects << Object3D.new({ :filename => "test_cube", :verbose => true })
+    @map_objects << Object3D.new(:filename => "abstract", :texture => "cardboard") # fails, but reports
+    # other tests:
+    @map_objects << Object3D.new({ :filename => "test_cube", :verbose => true })
     @map_objects << Object3D.new({ :filename => "car", :verbose => true, :debug_draw => false })
     #---------------------------------------------------------
     # play with some rotation settings...
@@ -58,8 +59,25 @@ class Map
   def update
     @@camera_vantage.update # update the camera
     # update world 3d objects:
+    run_cleaner = []
+    i = -1
     @map_objects.each do |object3d|
-      object3d.update unless object3d.nil?
+      i += 1
+      unless object3d.nil?
+        if object3d.destroyed?
+          run_cleaner << i # flag for removal
+        else 
+          object3d.update  # normal update
+        end
+      else # flag for removal because is nil index
+        run_cleaner << i
+      end
+    end
+    # run the cleaner agains the marked indexs
+    unless run_cleaner.empty?
+      run_cleaner.each do |remove_index|
+        @map_objects.delete_at(remove_index)
+      end
     end
   end
   #---------------------------------------------------------------------------------------------------------
