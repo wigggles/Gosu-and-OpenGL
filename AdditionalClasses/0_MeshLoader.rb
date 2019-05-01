@@ -17,6 +17,7 @@
 #   https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
 #=====================================================================================================================================================
 module WavefrontOBJ
+  DEBUGGING = false
   #=====================================================================================================================================================
   class Face
     attr_accessor :vertex_count # must be >= 3
@@ -182,7 +183,7 @@ module WavefrontOBJ
         values.collect! { |v| v.to_f }
         values = values[0..1]
         #values.size.times do |index|
-        #  values[index] -= 1.0 # inverse Y cord in texture file?
+        #  values[index] *= -1.0 # inverse Y cord in texture file?
         #end
         @texcoord.push( values ) # u and v
       #---------------------------------------------------------
@@ -201,47 +202,53 @@ module WavefrontOBJ
         end
         @current_group.mtl_name = @current_material_name
       #---------------------------------------------------------
-      # Smooth shading across polygons?
+      # Smooth shading across polygons? * can also mark shader groups with int value *
       when "s"
         setting = values.first # convert into boolean
         @smooth_shading = setting.include?('on') or setting.include?('true')
       #---------------------------------------------------------
-      # Polygonal face element
+      # Polygonal face element, these can be packaged in a number of ways.
+      # index is offset to start drawing at tile index 0
       when "f"
         vertex_count = values.length
         case values[0]
         when /\d+\/\d+\/\d+/ # v/vt/vn
           face = Face.new( vertex_count )
-          print("Face: ")
+          print("Face: ") if DEBUGGING
           values.each_with_index do |value, i|
             v, vt, vn = value.split( '/' )
             face.vtx_index[i] = v.to_i  - 1
             face.tex_index[i] = vt.to_i - 1
             face.nrm_index[i] = vn.to_i - 1
-            print("[#{face.vtx_index[i]}, #{face.tex_index[i]}, #{face.nrm_index[i]}] ")
+            print("[#{face.vtx_index[i]}, #{face.tex_index[i]}, #{face.nrm_index[i]}] ") if DEBUGGING
           end
-          puts("")
         #       --------------------------------------
         when /\d+\/\/\d+/ # v//vn
           face = Face.new( vertex_count )
+          print("Face: ") if DEBUGGING
           values.each_with_index do |value, i|
             v, vn = value.split( '//' )
             face.vtx_index[i] = v.to_i  - 1
             face.nrm_index[i] = vn.to_i - 1
+            print("[#{face.vtx_index[i]}, #{face.nrm_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
         when /\d+\/\d+/ # v/vt
           face = Face.new( vertex_count )
+          print("Face: ") if DEBUGGING
           values.each_with_index do |value, i|
             v, vt = value.split( '/' )
             face.vtx_index[i] = v.to_i  - 1
             face.tex_index[i] = vt.to_i - 1
+            print("[#{face.vtx_index[i]}, #{face.tex_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
         when /\d+/ # v
           face = Face.new( vertex_count )
+          print("Face: ")  if DEBUGGING
           values.each_with_index do |value, i|
             face.vtx_index[i] = value.to_i - 1
+            print("[#{face.vtx_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
         else
@@ -249,6 +256,7 @@ module WavefrontOBJ
         end
         @current_group.faces.push( face )
         @current_group.face_index.push( @current_group.faces.length - 1 )
+        puts("") if DEBUGGING
       #---------------------------------------------------------
       when /^\#+/, nil
         #puts "comment or empty line."
