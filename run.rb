@@ -23,9 +23,11 @@ if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil # is OS.windo
 elsif (/linux/ =~ RUBY_PLATFORM) != nil # OS.linux?
   # https://www.binarytides.com/linux-commands-hardware-info/
   system_info = `inxi -Fx`
-else # OS.mac?
+elsif (/darwin|mac os/ =~ RUBY_PLATFORM) != nil # OS.mac?
   # http://teczd.com/2015/09/23/osx-get-system-info-from-command-line/
   system_info = `system_profiler -detailLevel basic`
+else
+  system_info = "Un-known host machine."
 end
 puts system_info
 
