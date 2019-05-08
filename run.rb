@@ -16,6 +16,20 @@ ARGV.each do |launch_arg|
   end
 end
 #---------------------------------------------------------------------------------------------------------
+# get system specs:
+if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil # is OS.windows?
+  # https://www.thewindowsclub.com/system-info-systeminfo-windows
+  system_info = `systeminfo`
+elsif (/linux/ =~ RUBY_PLATFORM) != nil # OS.linux?
+  # https://www.binarytides.com/linux-commands-hardware-info/
+  system_info = `inxi -Fx`
+else # OS.mac?
+  # http://teczd.com/2015/09/23/osx-get-system-info-from-command-line/
+  system_info = `system_profiler -detailLevel basic`
+end
+puts system_info
+
+#---------------------------------------------------------------------------------------------------------
 ROOT = File.expand_path('.',__dir__)
 puts "starting up..."
 # Gem used for OS window management and display libs as well as User input call backs.

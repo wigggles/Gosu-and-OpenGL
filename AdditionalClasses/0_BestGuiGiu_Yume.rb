@@ -18,6 +18,7 @@ module Yume
 
       gl_version = glGetString(GL_VERSION).to_s
       gl_version = gl_version.split(' ')
+      
       if Gem::Version.new(gl_version[0]) > Gem::Version.new("1.5.0")
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
