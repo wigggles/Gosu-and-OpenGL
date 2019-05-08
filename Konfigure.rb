@@ -12,7 +12,8 @@ module Konfigure
   #---------------------------------------------------------------------------------------------------------
   UP_MS_DRAW  = 15    # 60 FPS = 16.6666 : 50 FPS = 20.0 : 40 FPS = 25.222
   #---------------------------------------------------------------------------------------------------------
-  PRINT_INPUT_KEY = false # Extra debug info on the input scheme manager.
+  PRINT_INPUT_KEY       = false # Extra debug info on the input scheme manager.
+  DISPLAY_HARDWARE_INFO = false # print hardware information to Terminal?
   #---------------------------------------------------------------------------------------------------------
   # Defualt control scheme settings.
   DEFAULT_CONTROLS = { 

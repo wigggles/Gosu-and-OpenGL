@@ -16,24 +16,27 @@ ARGV.each do |launch_arg|
   end
 end
 #---------------------------------------------------------------------------------------------------------
-# get system specs:
-if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil # is OS.windows?
-  # https://www.thewindowsclub.com/system-info-systeminfo-windows
-  system_info = `systeminfo`
-elsif (/linux/ =~ RUBY_PLATFORM) != nil # OS.linux?
-  # https://www.binarytides.com/linux-commands-hardware-info/
-  system_info = `inxi -Fx`
-elsif (/darwin|mac os/ =~ RUBY_PLATFORM) != nil # OS.mac?
-  # http://teczd.com/2015/09/23/osx-get-system-info-from-command-line/
-  system_info = `system_profiler -detailLevel basic`
-else
-  system_info = "Un-known host machine."
-end
-puts system_info
-
-#---------------------------------------------------------------------------------------------------------
 ROOT = File.expand_path('.',__dir__)
+# System wide vairable settings.
+require "#{ROOT}/Konfigure.rb"
+include Konfigure # inclusion of CONSTANT settings system wide.
 puts "starting up..."
+# get system specs:
+if Konfigure::DISPLAY_HARDWARE_INFO
+  if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil # is OS.windows?
+    # https://www.thewindowsclub.com/system-info-systeminfo-windows
+    system_info = `systeminfo`
+  elsif (/linux/ =~ RUBY_PLATFORM) != nil # OS.linux?
+    # https://www.binarytides.com/linux-commands-hardware-info/
+    system_info = `inxi -Fx`
+  elsif (/darwin|mac os/ =~ RUBY_PLATFORM) != nil # OS.mac?
+    # http://teczd.com/2015/09/23/osx-get-system-info-from-command-line/
+    system_info = `system_profiler -detailLevel basic`
+  else
+    system_info = "Un-known host machine."
+  end
+  puts system_info
+end
 # Gem used for OS window management and display libs as well as User input call backs.
 require 'gosu'    # https://rubygems.org/gems/gosu
 #---------------------------------------------------------------------------------------------------------
@@ -43,10 +46,6 @@ require 'glu'
 OpenGL.load_lib
 GLU.load_lib
 include OpenGL, GLU
-#---------------------------------------------------------------------------------------------------------
-# System wide vairable settings.
-require "#{ROOT}/Konfigure.rb"
-include Konfigure # inclusion of CONSTANT settings system wide.
 
 #=====================================================================================================================================================
 # Load all additional source scripts. Files need to be in directory ALPHABETICAL order if refrenced in a later object source file.
