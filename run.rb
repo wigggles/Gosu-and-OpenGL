@@ -79,6 +79,7 @@ class Program < Gosu::Window
     gl_version = gl_version.split(' ')
     @openGL_version = Gem::Version.new(gl_version[0])
     puts("Using OpenGL version: #{@openGL_version} On a #{gl_version[1]} Driver Version: #{gl_version[2]}")
+    puts("*" * 70)
     @@active_state = Map.new( { :level => "" } )
   end
   #---------------------------------------------------------------------------------------------------------
