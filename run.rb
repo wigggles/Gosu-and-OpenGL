@@ -9,9 +9,11 @@ puts "*" * 70
 #---------------------------------------------------------------------------------------------------------
 # https://www.codecademy.com/articles/ruby-command-line-argv
 APP_NAME = 'Desktop Garage'
-case ARGV.first
-when 'debug'
-  puts "#{APP_NAME} is in debug mode."
+ARGV.each do |launch_arg|
+  case launch_arg
+  when '--debug'
+    puts "#{APP_NAME} is in debug mode."
+  end
 end
 #---------------------------------------------------------------------------------------------------------
 ROOT = File.expand_path('.',__dir__)
@@ -63,6 +65,7 @@ require "#{ROOT}/MapState.rb"
 # Gosu display window for the game.
 #=====================================================================================================================================================
 class Program < Gosu::Window
+  attr_reader :openGL_version
   include QuickControls # takes care of all the button mapping and junk...
   @@active_state = nil  # The current update loop task to take care of, generaly closed state object loops.
   #---------------------------------------------------------------------------------------------------------
@@ -73,6 +76,10 @@ class Program < Gosu::Window
     $program = self   # global pointer to window creation object
     controls_init     # prep the input controls scheme manager
     @@active_state = Map.new( { :level => "" } )
+    gl_version = glGetString(GL_VERSION).to_s
+    gl_version = gl_version.split(' ')
+    @openGL_version = Gem::Version.new(gl_version[0])
+    puts("Using OpenGL version: #{@openGL_version} On a #{gl_version[1]} Driver Version: #{gl_version[2]}")
   end
   #---------------------------------------------------------------------------------------------------------
   def active_state
@@ -113,6 +120,16 @@ class Program < Gosu::Window
         @@active_state.gl_draw
       end
       #---------------------------------------------------------
+      # error net
+      was_error = glGetError()
+      case was_error
+      when GL_NO_ERROR
+        # do nothing, there was no error.
+      else
+        puts("OpenGL draw error: ")
+        puts was_error
+        exit
+      end
     end
     # !DO NOT MIX GOSU DRAW AND OPENGL DRAW CALLS!
     #---------------------------------------------------------

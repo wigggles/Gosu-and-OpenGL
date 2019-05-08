@@ -17,7 +17,13 @@ module Yume
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, array_of_pixels)
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-      glGenerateMipmap(GL_TEXTURE_2D)
+
+      gl_version = glGetString(GL_VERSION).to_s
+      gl_version = gl_version.split(' ')
+      if Gem::Version.new(gl_version[0]) > Gem::Version.new("1.5.0")
+        glGenerateMipmap(GL_TEXTURE_2D) # throws segment fault on older opengl versions
+      end
+
       @width, @height = texture.width, texture.height
     end
 
