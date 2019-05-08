@@ -75,11 +75,11 @@ class Program < Gosu::Window
     super(RESOLUTION[0], RESOLUTION[1], {:update_interval => UP_MS_DRAW, :fullscreen => ISFULLSCREEN})
     $program = self   # global pointer to window creation object
     controls_init     # prep the input controls scheme manager
-    @@active_state = Map.new( { :level => "" } )
     gl_version = glGetString(GL_VERSION).to_s
     gl_version = gl_version.split(' ')
     @openGL_version = Gem::Version.new(gl_version[0])
     puts("Using OpenGL version: #{@openGL_version} On a #{gl_version[1]} Driver Version: #{gl_version[2]}")
+    @@active_state = Map.new( { :level => "" } )
   end
   #---------------------------------------------------------------------------------------------------------
   def active_state
