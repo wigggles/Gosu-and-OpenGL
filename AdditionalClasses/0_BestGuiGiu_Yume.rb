@@ -15,13 +15,16 @@ module Yume
       @tex_name = tex_name_buf.unpack('L')[0]
       glBindTexture(GL_TEXTURE_2D, @tex_name)
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, array_of_pixels)
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
 
       gl_version = glGetString(GL_VERSION).to_s
       gl_version = gl_version.split(' ')
       if Gem::Version.new(gl_version[0]) > Gem::Version.new("1.5.0")
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
         glGenerateMipmap(GL_TEXTURE_2D) # throws segment fault on older opengl versions
+      else
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
       end
 
       @width, @height = texture.width, texture.height
