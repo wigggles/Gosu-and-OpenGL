@@ -37,6 +37,7 @@ class Object3D < Basic3D_Object
     if success.nil?
       # there was an issue that was reported that resulted in a fail loading.
       puts("issue with object loading (#{@obj_filename})")
+      puts caller
       puts("-" * 70)
       self.destroy # mark for map clean up/ removal
       return nil
@@ -132,26 +133,33 @@ class Object3D < Basic3D_Object
   def load_obj_file
     if self.use_wavefrontOBJ_loader() == nil
       # there was an issue loading the object data, dont bother with the image file.
+      puts "Wavefront .obj file load errors!"
       return nil
     end
     # save the @texture refrence as its refered to later and you dont want to loose the refrence object.
-    if @obj_filename != @texture_file
-      file = "Media/Textures/#{@texture_file}.png"
-    else # nest the object file, keeps the directory cleaner this way.
-      file = "Media/3dModels/#{@texture_file}/#{@texture_file}.png"
-    end
-    file_dir = File.join(ROOT, file)
-    image = Gosu::Image.new(file_dir, retro: true) rescue nil
-    if image.nil?
-      puts("Texture image file was not found for: #{file_dir}")
-      unless TEXTURE_DEBUG
-        exit
-      else
-        return true
+    if @obj_filename.include?('Media/Maps')
+      file = @obj_filename
+      @texture = nil
+      puts("Detected map file, needs texture load work:\n  \"#{file}\"")
+    else
+      if @obj_filename != @texture_file
+        file = "Media/Textures/#{@texture_file}.png"
+      else # nest the object file, keeps the directory cleaner this way.
+        file = "Media/3dModels/#{@texture_file}/#{@texture_file}.png"
       end
+      file_dir = File.join(ROOT, file)
+      image = Gosu::Image.new(file_dir, retro: true) rescue nil
+      if image.nil?
+        puts("Texture image file was not found for: #{file_dir}")
+        unless TEXTURE_DEBUG
+          exit
+        else
+          return true
+        end
+      end
+      @texture = Yume::Texture.new(image)
+      puts("Using local 3D object file texture setting:\n  \"#{file}\"")
     end
-    @texture = Yume::Texture.new(image)
-    puts("Using local 3D object file texture setting:\n  \"#{file}\"")
     #--------------------------------------
     # https://www.rubydoc.info/github/gosu/gosu/master/Gosu/Image#gl_tex_info-instance_method
     # @tex_info = @texture.gl_tex_info # helper structure that contains image data
@@ -162,17 +170,26 @@ class Object3D < Basic3D_Object
   #D: Turns out the gem for OpenGL drawing has some features tucked away in the samples.
   #-------------------------------------------------------------------------------------------------------------------------------------------
   def use_wavefrontOBJ_loader
-    # nest the object file, keeps the directory cleaner this way.
-    @file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}/#{@obj_filename}.obj") rescue nil
-    unless FileTest.exists?(@file_dir)
-      puts("Mesh Loader Error: Could not find 3D object (#{@obj_filename}) source file.\n  #{@file_dir}")
-      #throw Error.new() 
-      #exit
-      return nil
+    if @obj_filename.include?("Media/Maps")
+      @file_dir = File.join(ROOT, "#{@obj_filename}") rescue nil
+      unless FileTest.exists?(@file_dir)
+        puts("Mesh Loader Error: Could not find 3D Map file (#{@obj_filename})\n  #{@file_dir}")
+        puts caller
+        return nil
+      end
+      options = {:object_name => "GameMap", :verbose => @verbose, :file_dir => @file_dir}
+    else
+      # nest the object file, keeps the directory cleaner this way.
+      @file_dir = File.join(ROOT, "Media/3dModels/#{@obj_filename}/#{@obj_filename}.obj") rescue nil
+      unless FileTest.exists?(@file_dir)
+        puts("Mesh Loader Error: Could not find 3D object (#{@obj_filename}) source file.\n  #{@file_dir}")
+        puts caller
+        return nil
+      end
+      options = {:object_name => @obj_filename, :verbose => @verbose}
     end
     #---------------------------------------------------------
     # module that manages loading of 3d objects.
-    options = {:object_name => @obj_filename, :verbose => @verbose}
     @object_model = WavefrontOBJ::Model.new(options) rescue nil
     if @object_model.nil?
       puts("Failed to load model data for: (#{@obj_filename})")

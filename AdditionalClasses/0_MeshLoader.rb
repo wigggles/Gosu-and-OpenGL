@@ -90,9 +90,14 @@ module WavefrontOBJ
     def initialize(**options)
       @verbose = options[:verbose] || false
       @object_name = options[:object_name] || "Defualt" # sat by loaded file name.
-      @file_dir = File.join(ROOT, "Media/3dModels/#{@object_name}/#{@object_name}.obj") rescue nil
+      if options[:file_dir]
+        @file_dir = options[:file_dir]
+      else
+        @file_dir = File.join(ROOT, "Media/3dModels/#{@object_name}/#{@object_name}.obj") rescue nil
+      end
       unless FileTest.exists?(@file_dir)
-        puts("Mesh Loader Error: Could not find 3D object (#{@object_name}) source file.\n  #{@file_dir}")
+        puts("Mesh Model Error: Could not find 3D object (#{@object_name}) source file.\n  #{@file_dir}")
+        puts caller
         return nil
       end
       # file information containers
@@ -105,6 +110,9 @@ module WavefrontOBJ
       @material_lib      = ""
       @current_materials = []
       @objects = []
+      if @verbose
+        puts "New wavefront model object created. (#{@object_name})"
+      end
       return true # success
     end
     #---------------------------------------------------------------------------------------------------------
