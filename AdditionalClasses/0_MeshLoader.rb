@@ -65,8 +65,7 @@ module WavefrontOBJ
             ti = face.tex_index[0] != -1 ? face.tex_index[i] : nil
             # vertext plane start location:
             glNormal3f( model.normal[ni][0], model.normal[ni][1], model.normal[ni][2] ) if ni
-            # if the face is a refrenced index:
-            # http://docs.gl/gl3/glDrawElements
+            # if the face is a refrenced index:  http://docs.gl/gl3/glDrawElements
             # instead of a glNormal3f call, glDrawElements may need to be used for geometric primatives
             # which utilizes an index value when plotting vectors.
             if ti # if has texture.
