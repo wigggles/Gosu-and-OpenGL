@@ -17,7 +17,7 @@
 #   https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Load_OBJ
 #=====================================================================================================================================================
 module WavefrontOBJ
-  DEBUGGING = false # prints extra info when parsing mesh file.
+  DEBUGGING = true # prints extra info when parsing mesh file.
   #=====================================================================================================================================================
   # A face on the surface of an .obj
   #=====================================================================================================================================================
@@ -241,9 +241,10 @@ module WavefrontOBJ
       when "f"
         vertex_count = values.length
         case values[0]
-        when /\d+\/\d+\/\d+/ # v/vt/vn
+        when /\d+\/\d+\/\d+/ # v/vt/vn, Vertex normal indices:
+          # https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_normal_indices
           face = Face.new( vertex_count )
-          print("Face: ") if DEBUGGING
+          print("Face 'normal': ") if DEBUGGING
           values.each_with_index do |value, i|
             v, vt, vn = value.split( '/' )
             face.vtx_index[i] = v.to_i  - 1
@@ -252,9 +253,9 @@ module WavefrontOBJ
             print("[#{face.vtx_index[i]}, #{face.tex_index[i]}, #{face.nrm_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
-        when /\d+\/\/\d+/ # v//vn
+        when /\d+\/\/\d+/ # v//vn, Vertex normal indices without texture coordinate indices:
           face = Face.new( vertex_count )
-          print("Face: ") if DEBUGGING
+          print("Face 'w/o texture': ") if DEBUGGING
           values.each_with_index do |value, i|
             v, vn = value.split( '//' )
             face.vtx_index[i] = v.to_i  - 1
@@ -262,9 +263,9 @@ module WavefrontOBJ
             print("[#{face.vtx_index[i]}, #{face.nrm_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
-        when /\d+\/\d+/ # v/vt
+        when /\d+\/\d+/ # v/vt, Vertex texture coordinate indices:
           face = Face.new( vertex_count )
-          print("Face: ") if DEBUGGING
+          print("Face 'texture': ") if DEBUGGING
           values.each_with_index do |value, i|
             v, vt = value.split( '/' )
             face.vtx_index[i] = v.to_i  - 1
@@ -272,11 +273,12 @@ module WavefrontOBJ
             print("[#{face.vtx_index[i]}, #{face.tex_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
-        when /\d+/ # v
+        when /\d+/ # v, Vertex index refrence:
+          # https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vertex_indices
           face = Face.new( vertex_count )
-          print("Face: ")  if DEBUGGING
+          print("Face 'index': ")  if DEBUGGING
           values.each_with_index do |value, i|
-            face.vtx_index[i] = value.to_i - 1
+            face.vtx_index[i] = value.to_i
             print("[#{face.vtx_index[i]}] ") if DEBUGGING
           end
         #       --------------------------------------
